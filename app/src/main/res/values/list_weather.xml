@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="images">
+        <item>@drawable/weather0</item>
+        <item>@drawable/weather1</item>
+        <item>@drawable/weather2</item>
+        <item>@drawable/weather3</item>
+        <item>@drawable/weather4</item>
+        <item>@drawable/weather5</item>
+        <item>@drawable/weather6</item>
+        <item>@drawable/weather7</item>
+        <item>@drawable/weather8</item>
+        <item>@drawable/weather9</item>
+        <item>@drawable/weather10</item>
+        <item>@drawable/weather11</item>
+        <item>@drawable/weather12</item>
+        <item>@drawable/weather13</item>
+        <item>@drawable/weather14</item>
+        <item>@drawable/weather15</item>
+        <item>@drawable/weather16</item>
+        <item>@drawable/weather17</item>
+        <item>@drawable/weather18</item>
+        <item>@drawable/weather19</item>
+        <item>@drawable/weather20</item>
+        <item>@drawable/weather21</item>
+        <item>@drawable/weather22</item>
+        <item>@drawable/weather23</item>
+        <item>@drawable/weather24</item>
+        <item>@drawable/weather25</item>
+        <item>@drawable/weather26</item>
+        <item>@drawable/weather27</item>
+        <item>@drawable/weather28</item>
+        <item>@drawable/weather29</item>
+        <item>@drawable/weather30</item>
+        <item>@drawable/weather31</item>
+        <item>@drawable/weather32</item>
+        <item>@drawable/weather33</item>
+        <item>@drawable/weather34</item>
+        <item>@drawable/weather35</item>
+        <item>@drawable/weather36</item>
+        <item>@drawable/weather37</item>
+        <item>@drawable/weather38</item>
+        <item>@drawable/weather39</item>
+        <item>@drawable/weather40</item>
+        <item>@drawable/weather41</item>
+        <item>@drawable/weather42</item>
+        <item>@drawable/weather43</item>
+        <item>@drawable/weather44</item>
+        <item>@drawable/weather45</item>
+        <item>@drawable/weather46</item>
+        <item>@drawable/weather47</item>
+    </array>
+
+</resources>

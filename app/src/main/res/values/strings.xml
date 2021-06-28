@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">Weather1</string>
+
+    <!-- TOOLBAR-->
+    <string name="frag0">Location</string>
+    <string name="frag2">Next 12 hours</string>
+    <string name="frag3">Next 5 days, each 3 hours</string>
+
+
+    <!-- WEATHER FRAGMENT-->
+    <string name="weather1">Wind</string>
+    <string name="weather2">Pressure</string>
+    <string name="weather3">Humidity</string>
+    <string name="weather4">Sunrise</string>
+    <string name="weather5">Sunset</string>
+    <string name="weather6">Geo coords</string>
+    <string name="windValue">speed:  %1$s</string>
+    <string name="pressureValue">%1$s hpa</string>
+    <string name="tempValue">%1$s °C</string>
+    <string name="humValue">%1$s </string>
+    <string name="coordValue">[ %1$s , %2$s ]</string>
+    <string name="collection">Location</string>
+    <string name="city">Place</string>
+    <string name="day">Next 24 Hours</string>
+    <string name="days">Next 5 days</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_main2">MainActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+</resources>
