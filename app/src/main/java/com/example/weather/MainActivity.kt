@@ -2,31 +2,38 @@ package com.example.weather
 
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.LocationManager
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.viewpager2.widget.ViewPager2
 import com.example.weather.Constants.MY_PERMISSIONS_REQUEST_BACKGROUND_LOCATION
 import com.example.weather.Constants.MY_PERMISSIONS_REQUEST_LOCATION
+
+
 import com.example.weather.databinding.ActivityMainBinding
 import com.google.android.gms.location.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val sharedViewModel: SharedViewModel by viewModels()
+
 
     private var fusedLocationProvider: FusedLocationProviderClient? = null
     private val locationRequest: LocationRequest = LocationRequest.create().apply {
@@ -42,10 +49,18 @@ class MainActivity : AppCompatActivity() {
             if (locationList.isNotEmpty()) {
                 //The last location in the list is the newest
                 val location = locationList.last()
-
             }
+
         }
     }
+
+
+    fun convertLongToTime(time: Long): String {
+        val date = Date(time)
+        val format = SimpleDateFormat("EEE HH:mm")
+        return format.format(date)
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,38 +69,43 @@ class MainActivity : AppCompatActivity() {
         fusedLocationProvider = LocationServices.getFusedLocationProviderClient(this)
         checkLocationPermission()
 
-        if (!isLocationEnabled(this)) {
-            showLocationIsDisabledAlert()
-        }
+        autoLocation()
+
+        sharedViewModel.isEnabled.observe(this, { isInvalid ->
+            if (isInvalid) {
+                 sharedViewModel.showLocationIsDisabledAlert(this)
+            }
+
+        })
+
+        sharedViewModel.goToLocationSettings.observe(this, {
+            if (it) {
+                sharedViewModel.showLocationIsDisabledAlert(this)
+                locationSettings()
+            }
+
+        })
+
 
           setupToolbar()
          setupViewpager2()
 
+        sharedViewModel.getWeather()
+
+
     }
 
-    //--------------------------------
-    // Check if location is enabled
-    //--------------------------------
-
-    private fun isLocationEnabled(mContext: Context): Boolean {
-        val lm = mContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(
-            LocationManager.NETWORK_PROVIDER)
+    private fun locationSettings() {
+        startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+        sharedViewModel.onGoComplete()
     }
 
-    private fun showLocationIsDisabledAlert() {
-        val alertDialog = AlertDialog.Builder(this)
+    private fun autoLocation() {
+        when (isLocationEnabled(this)) {
+            false -> sharedViewModel.onInvalid()
+            else -> return
 
-        alertDialog.apply {
-            setTitle("Enable Location Providers")
-            setMessage("The auto-location feature relies on at least one location provider")
-            setCancelable(false)
-            setPositiveButton("ENABLE PROVIDERS") { _, _ ->
-                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-            }
-            setNegativeButton("STOP AUTO-LOCATION") { _, _ -> }
-
-        }.create().show()
+        }
     }
 
     //--------------------------------
@@ -116,14 +136,14 @@ class MainActivity : AppCompatActivity() {
     private fun next5DaysBar() {
         binding.apply {
             toolbar.title = "Location"
-            toolbar.subtitle = "Next 5 days"
+            toolbar.subtitle = "Next 7 days"
         }
     }
 
     private fun next24HoursBar() {
         binding.apply {
             toolbar.title = "Location"
-            toolbar.subtitle = "Next 24 hours"
+            toolbar.subtitle = "Next 48 hours"
         }
     }
 
