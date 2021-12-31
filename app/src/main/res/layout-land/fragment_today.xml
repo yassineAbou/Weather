@@ -34,23 +34,23 @@
         android:id="@+id/today_weather_img"
         android:layout_width="@dimen/_190sdp"
         android:layout_height="@dimen/_190sdp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="@dimen/_77sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/backgrounds/scenic"
-        android:visibility="visible"/>
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
     <TextView
         android:id="@+id/temperature"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/roboto_light"
+        android:layout_marginStart="@dimen/_100sdp"
         android:text="55767"
         android:textColor="@color/white"
         android:textSize="@dimen/_58ssp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/today_weather_img" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/today_weather_img"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView4"
@@ -61,7 +61,7 @@
         android:textSize="@dimen/_17ssp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/temperature"
-        android:layout_marginStart="@dimen/_65sdp"/>
+        android:layout_marginStart="@dimen/_320sdp"/>
 
     <TextView
         android:id="@+id/humidity"
@@ -85,7 +85,7 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/wind"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="@dimen/_65sdp"/>
+        android:layout_marginStart="@dimen/_320sdp"/>
 
     <TextView
         android:id="@+id/wind"
@@ -97,7 +97,5 @@
         app:layout_constraintStart_toEndOf="@id/textView6"
         android:layout_marginStart="@dimen/_65sdp"
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
