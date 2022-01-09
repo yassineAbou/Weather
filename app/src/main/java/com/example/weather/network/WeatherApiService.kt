@@ -1,6 +1,6 @@
 package com.example.weather.network
 
-import com.example.weather.Constants.BASE_URL
+import com.example.weather.util.Constants.BASE_URL
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.Retrofit

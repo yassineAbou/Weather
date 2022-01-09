@@ -1,8 +1,4 @@
-package com.example.weather
-
-import android.content.Context
-import android.location.LocationManager
-import androidx.appcompat.app.AlertDialog
+package com.example.weather.util
 
 object Constants {
 

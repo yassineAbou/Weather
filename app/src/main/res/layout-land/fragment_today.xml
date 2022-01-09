@@ -3,32 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+
+        <variable
+            name="todayViewModelBind"
+            type="com.example.weather.current_weather.TodayViewModel" />
+
+    </data>
+
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TodayFragment"
+    tools:context=".current_weather.TodayFragment"
     android:background="@drawable/gradient">
-
-    <ImageView
-        android:id="@+id/today_status"
-        android:layout_width="@dimen/_100sdp"
-        android:layout_height="@dimen/_100sdp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/loading_animation"
-        tools:visibility="gone"
-        />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/today_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="today_weather_img,
-        temperature,textView4,humidity,textView6,wind"
-        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/today_weather_img"
@@ -38,14 +25,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+        tools:srcCompat="@tools:sample/backgrounds/scenic"
+        imageUrl="@{String.format(@string/open_weather_img, todayViewModelBind.currentImage)}"/>
 
     <TextView
         android:id="@+id/temperature"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_100sdp"
-        android:text="55767"
+        tools:text="17°"
+        android:text="@{todayViewModelBind.temperature}"
         android:textColor="@color/white"
         android:textSize="@dimen/_58ssp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -67,7 +56,8 @@
         android:id="@+id/humidity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="45"
+        android:text="@{todayViewModelBind.humidity}"
+        tools:text="15%"
         android:textColor="@color/white"
         android:textSize="@dimen/_17ssp"
         app:layout_constraintTop_toBottomOf="@+id/temperature"
@@ -91,7 +81,8 @@
         android:id="@+id/wind"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="6.4km"
+        android:text="@{todayViewModelBind.wind}"
+        tools:text="1.31m/s"
         android:textColor="@color/white"
         android:textSize="@dimen/_17ssp"
         app:layout_constraintStart_toEndOf="@id/textView6"

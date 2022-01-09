@@ -6,13 +6,13 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.weather.SharedViewModel" />
+            type="com.example.weather.MainViewModel" />
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LocationFragment"
+    tools:context=".place.LocationFragment"
     android:background="@drawable/gradient">
 
     <fragment android:id="@+id/autocomplete_support_fragment"

@@ -1,11 +1,12 @@
-package com.example.weather
+package com.example.weather.place
 
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import com.example.weather.R
 
 @BindingAdapter("locality")
-fun TextView.setHourlyDateFormatted(item: PlaceItem) {
+fun TextView.setDateFormatted(item: PlaceItem) {
     item?.let {
         text = item.locality
     }
@@ -13,7 +14,7 @@ fun TextView.setHourlyDateFormatted(item: PlaceItem) {
 
 
 @BindingAdapter("currentTime")
-fun TextView.setHourlyTemperature(item: PlaceItem) {
+fun TextView.setTemperature(item: PlaceItem) {
     item?.let {
         text = item.time
     }
@@ -21,7 +22,7 @@ fun TextView.setHourlyTemperature(item: PlaceItem) {
 
 
 @BindingAdapter("delete")
-fun ImageView.setHourlyWeatherImage(item: PlaceItem) {
+fun ImageView.seWeatherImage(item: PlaceItem) {
     item?.let {
         setImageResource(
             when (item.isAutoLocation) {

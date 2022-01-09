@@ -1,12 +1,10 @@
-package com.example.weather
+package com.example.weather.util
 
 import android.content.Context
 import android.location.LocationManager
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.lifecycle.MutableLiveData
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,6 +23,7 @@ fun bindImage(imgView: ImageView, imgUrl: String?) {
         .load(imgUrl)
         .into(imgView)
 }
+
 
 fun convertToHour(dt: Int): String? {
     val date = Date((dt * 1000L))

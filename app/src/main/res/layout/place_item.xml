@@ -7,7 +7,7 @@
 
         <variable
             name="placeItem"
-            type="com.example.weather.PlaceItem"/>
+            type="com.example.weather.place.PlaceItem"/>
     </data>
 
 

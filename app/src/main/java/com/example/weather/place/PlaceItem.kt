@@ -1,4 +1,4 @@
-package com.example.weather
+package com.example.weather.place
 
 import java.util.*
 

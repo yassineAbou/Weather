@@ -1,18 +1,15 @@
-package com.example.weather
+package com.example.weather.hourly_forecast
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.databinding.PlaceItemBinding
-import java.util.*
+import com.example.weather.databinding.HourlyItemBinding
+import com.example.weather.network.Hourly
 
-class PlaceItemsAdapter() :
-    ListAdapter<PlaceItem, PlaceItemsAdapter.ViewHolder>(PlaceItemDiffCallback()) {
+class HourlyItemsAdapter() :
+    ListAdapter<Hourly, HourlyItemsAdapter.ViewHolder>(HourlyItemDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)!!
@@ -23,11 +20,12 @@ class PlaceItemsAdapter() :
         return ViewHolder.from(parent)
     }
 
-    class ViewHolder private constructor(val binding: PlaceItemBinding) : RecyclerView.ViewHolder(binding.root){
 
-        fun bind(item:PlaceItem) {
+    class ViewHolder private constructor(private val binding: HourlyItemBinding) : RecyclerView.ViewHolder(binding.root){
+
+        fun bind(item: Hourly) {
             binding.apply {
-                placeItem = item
+                hourlyItem = item
                 executePendingBindings()
             }
         }
@@ -35,7 +33,7 @@ class PlaceItemsAdapter() :
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = PlaceItemBinding.inflate(layoutInflater, parent, false)
+                val binding = HourlyItemBinding.inflate(layoutInflater, parent, false)
                 return ViewHolder(binding)
             }
         }
@@ -44,14 +42,14 @@ class PlaceItemsAdapter() :
 
 }
 
-class PlaceItemDiffCallback : DiffUtil.ItemCallback<PlaceItem>() {
-
-    override fun areItemsTheSame(oldItem: PlaceItem, newItem: PlaceItem): Boolean {
-        return oldItem.id == newItem.id
+class HourlyItemDiffCallback : DiffUtil.ItemCallback<Hourly>() {
+    override fun areItemsTheSame(oldItem: Hourly, newItem: Hourly): Boolean {
+        return oldItem.dt == newItem.dt
     }
 
-    override fun areContentsTheSame(oldItem: PlaceItem, newItem: PlaceItem): Boolean {
+    override fun areContentsTheSame(oldItem: Hourly, newItem: Hourly): Boolean {
         return oldItem == newItem
     }
-}
 
+
+}

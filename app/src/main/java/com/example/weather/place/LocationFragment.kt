@@ -1,4 +1,4 @@
-package com.example.weather
+package com.example.weather.place
 
 
 
@@ -8,9 +8,15 @@ import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.weather.R
+
+import com.example.weather.MainViewModel
 import com.example.weather.databinding.FragmentLocationBinding
+import com.example.weather.repository.WeatherRepository
+import com.example.weather.util.Constants
 import com.google.android.gms.common.api.Status
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
@@ -26,7 +32,9 @@ class LocationFragment : Fragment() {
     private var autocompleteFragment: AutocompleteSupportFragment? = null
     private lateinit var placesClient: PlacesClient
     private lateinit var binding: FragmentLocationBinding
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val locationViewModel: LocationViewModel by viewModels()
+
+    private val sharedViewModel: MainViewModel by activityViewModels()
 
 
     override fun onCreateView(
@@ -42,18 +50,22 @@ class LocationFragment : Fragment() {
 
 
 
+
         val adapter = PlaceItemsAdapter()
 
         binding.recyclerView.adapter = adapter
         val manager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         binding.recyclerView.layoutManager = manager
 
-        sharedViewModel.placeItems.observe(viewLifecycleOwner, {
+        /*
+        activityViewModel.placeItems.observe(viewLifecycleOwner, {
             it?.let {
                 adapter.submitList(it)
             }
 
         })
+
+         */
 
         // TODO: 12/18/2021 refactor the code autocomplete fragment
         autocompleteFragment = ((childFragmentManager.findFragmentById(R.id.autocomplete_support_fragment)

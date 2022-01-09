@@ -1,4 +1,4 @@
-package com.example.weather
+package com.example.weather.place
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -6,7 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.example.weather.R
 import com.example.weather.databinding.FragmentSearchBinding
+import com.example.weather.util.Constants
 import com.google.android.gms.common.api.Status
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place

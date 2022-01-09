@@ -4,26 +4,31 @@ package com.example.weather
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
-import com.example.weather.Constants.MY_PERMISSIONS_REQUEST_BACKGROUND_LOCATION
-import com.example.weather.Constants.MY_PERMISSIONS_REQUEST_LOCATION
+import com.example.weather.util.Constants.MY_PERMISSIONS_REQUEST_BACKGROUND_LOCATION
+import com.example.weather.util.Constants.MY_PERMISSIONS_REQUEST_LOCATION
 
 
 import com.example.weather.databinding.ActivityMainBinding
+import com.example.weather.repository.WeatherRepository
+import com.example.weather.util.isLocationEnabled
 import com.google.android.gms.location.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,9 +36,12 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private val sharedViewModel: SharedViewModel by viewModels()
 
+    private lateinit var binding: ActivityMainBinding
+    private val weatherRepository = WeatherRepository()
+    private val mainViewModel: MainViewModel by viewModels {
+        MainViewModel.Factory(weatherRepository)
+    }
 
     private var fusedLocationProvider: FusedLocationProviderClient? = null
     private val locationRequest: LocationRequest = LocationRequest.create().apply {
@@ -64,49 +72,71 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-          binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
+
 
         fusedLocationProvider = LocationServices.getFusedLocationProviderClient(this)
         checkLocationPermission()
 
+
         autoLocation()
 
-        sharedViewModel.isEnabled.observe(this, { isInvalid ->
+
+
+        mainViewModel.weather.observe(this, {
+           it?.let {
+
+           }
+        })
+
+        mainViewModel.isEnabled.observe(this, { isInvalid ->
             if (isInvalid) {
-                 sharedViewModel.showLocationIsDisabledAlert(this)
+                mainViewModel.showLocationIsDisabledAlert(this)
             }
 
         })
 
-        sharedViewModel.goToLocationSettings.observe(this, {
+        mainViewModel.goToLocationSettings.observe(this, {
             if (it) {
-                sharedViewModel.showLocationIsDisabledAlert(this)
+                mainViewModel.showLocationIsDisabledAlert(this)
                 locationSettings()
             }
 
+        })
+
+        mainViewModel.status.observe(this, {
+            when (it.name) {
+                "LOADING" -> Toast.makeText(this, "LOADING", Toast.LENGTH_SHORT).show()
+                "DONE" -> Toast.makeText(this, "DONE", Toast.LENGTH_SHORT).show()
+                "ERROR" -> Toast.makeText(this, "ERROR", Toast.LENGTH_SHORT).show()
+            }
         })
 
 
           setupToolbar()
          setupViewpager2()
 
-        sharedViewModel.getWeather()
+        mainViewModel.getWeather()
 
 
     }
 
+
     private fun locationSettings() {
         startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-        sharedViewModel.onGoComplete()
+        mainViewModel.onGoComplete()
     }
 
     private fun autoLocation() {
         when (isLocationEnabled(this)) {
-            false -> sharedViewModel.onInvalid()
+            false -> mainViewModel.onInvalid()
             else -> return
 
         }
     }
+
+
 
     //--------------------------------
     // Setup viewpager and toolbar

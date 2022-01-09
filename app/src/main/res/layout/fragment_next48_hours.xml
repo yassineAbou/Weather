@@ -3,33 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="next48HoursViewModelBind"
+            type="com.example.weather.hourly_forecast.Next48HoursViewModel" />
+    </data>
+
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Next24HoursFragment"
+    tools:context=".hourly_forecast.Next48HoursFragment"
     android:background="@drawable/gradient">
 
-    <ImageView
-        android:id="@+id/next_hours_status"
-        android:layout_width="@dimen/_100sdp"
-        android:layout_height="@dimen/_100sdp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/loading_animation"
-        tools:visibility="gone"/>
-
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView2"
+        android:id="@+id/hourly_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/hourly_item"
-        tools:visibility="visible"
-        android:visibility="gone"/>
+        hourly_listData="@{next48HoursViewModelBind.hourlyItems}"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
