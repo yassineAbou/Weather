@@ -27,7 +27,7 @@ class TodayFragment : Fragment() {
 
           setupViewModelDataBinding()
 
-          val weatherResult = mainViewModel.getWeatherResult()
+          val weatherResult = mainViewModel.weather.value
           weatherResult?.let { todayViewModel.displayCurrentWeather(it.current) }
 
 

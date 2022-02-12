@@ -5,7 +5,6 @@ package com.example.weather.place
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -15,26 +14,14 @@ import com.example.weather.R
 
 import com.example.weather.MainViewModel
 import com.example.weather.databinding.FragmentLocationBinding
-import com.example.weather.repository.WeatherRepository
-import com.example.weather.util.Constants
-import com.google.android.gms.common.api.Status
-import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.model.TypeFilter
-import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import java.util.*
 
 
 class LocationFragment : Fragment() {
 
-    private var autocompleteFragment: AutocompleteSupportFragment? = null
-    private lateinit var placesClient: PlacesClient
+
     private lateinit var binding: FragmentLocationBinding
     private val locationViewModel: LocationViewModel by viewModels()
-
-    private val sharedViewModel: MainViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
 
 
     override fun onCreateView(
@@ -49,65 +36,52 @@ class LocationFragment : Fragment() {
        //binding.lifecycleOwner = viewLifecycleOwner
 
 
+       // val place = PlaceItem("Rabat,MA", "13:50", true)
+       // mainViewModel.addAutoPlaceItem(place)
 
 
-        val adapter = PlaceItemsAdapter()
+
+        val adapter = PlaceItemsAdapter(
+            PlaceItemListener { place ->
+             mainViewModel.removePlaceItem(place)
+            },
+            PlaceItemListener2 { place2 ->
+               mainViewModel.updateIsChecked(place2)
+            }
+        )
 
         binding.recyclerView.adapter = adapter
         val manager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         binding.recyclerView.layoutManager = manager
 
-        /*
-        activityViewModel.placeItems.observe(viewLifecycleOwner, {
+
+        mainViewModel.getLastPlace().observe(viewLifecycleOwner) {
+            if (mainViewModel.isAdded.value == true) {
+                it?.let {
+                    mainViewModel.updateIsChecked(it)
+                    mainViewModel.onUpdatedComplete()
+                }
+
+            }
+
+        }
+
+        mainViewModel.navigateToNewLocationDialog.observe(viewLifecycleOwner) {
+            if (it == true)
+                showNewCityDialog()
+        }
+
+
+        mainViewModel.placeItems.observe(viewLifecycleOwner) {
             it?.let {
                 adapter.submitList(it)
             }
-
-        })
-
-         */
-
-        // TODO: 12/18/2021 refactor the code autocomplete fragment
-        autocompleteFragment = ((childFragmentManager.findFragmentById(R.id.autocomplete_support_fragment)
-                as AutocompleteSupportFragment?))
-
-        if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), Constants.AUTOCOMPLETE_API_KEY);
         }
 
-        // Create a new Places client instance.
-        placesClient = Places.createClient(requireContext())
-
-
-
-        autocompleteFragment?. let {
-            it.setTypeFilter(TypeFilter.CITIES)
-            it.setPlaceFields(
-                Arrays.asList(
-                    Place.Field.ID,
-                    Place.Field.NAME,
-                    Place.Field.PHOTO_METADATAS
-                )
-            )
-            it.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-                override fun onError(p0: Status) {
-                    Toast.makeText(requireContext(), "error", Toast.LENGTH_SHORT).show()
-                }
-
-                override fun onPlaceSelected(p0: Place) {
-                    Toast.makeText(requireContext(), "success", Toast.LENGTH_SHORT).show()
-                }
-
-            })
-        }
 
 
         return binding.root
     }
-
-
-
-
 
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -119,21 +93,19 @@ class LocationFragment : Fragment() {
 
          when (item.itemId) {
              R.id.action_add -> {
-                 val root: View = autocompleteFragment?.view!!
-                 root.findViewById<View>(R.id.places_autocomplete_search_input).performClick()
+                 mainViewModel.onNavigation()
              }
-
          }
 
         return super.onOptionsItemSelected(item)
     }
 
-
-
-
-
-
-
+    private fun showNewCityDialog() {
+        // Create an instance of the dialog fragment and show it
+        val dialog = NewPlaceDialogFragment()
+        dialog.show(parentFragmentManager, "NoticeDialogFragment")
+        mainViewModel.onNavigationComplete()
+    }
 
 
 

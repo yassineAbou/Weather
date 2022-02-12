@@ -2,31 +2,33 @@ package com.example.weather
 
 
 import android.Manifest
+import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
-import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
+import com.example.weather.database.PlaceDatabase
+import com.example.weather.database.PlaceDoe
+import com.example.weather.database.PlaceItem
 import com.example.weather.util.Constants.MY_PERMISSIONS_REQUEST_BACKGROUND_LOCATION
 import com.example.weather.util.Constants.MY_PERMISSIONS_REQUEST_LOCATION
 
 
 import com.example.weather.databinding.ActivityMainBinding
+import com.example.weather.repository.PlaceRepository
 import com.example.weather.repository.WeatherRepository
 import com.example.weather.util.isLocationEnabled
 import com.google.android.gms.location.*
@@ -34,14 +36,18 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
+
 class MainActivity : AppCompatActivity() {
+
 
 
     private lateinit var binding: ActivityMainBinding
     private val weatherRepository = WeatherRepository()
     private val mainViewModel: MainViewModel by viewModels {
-        MainViewModel.Factory(weatherRepository)
+        MainViewModel.Factory(weatherRepository, PlaceRepository(PlaceDatabase.getInstance(
+            requireNotNull(this).application).placeDoe), requireNotNull(this).application)
     }
+
 
     private var fusedLocationProvider: FusedLocationProviderClient? = null
     private val locationRequest: LocationRequest = LocationRequest.create().apply {
@@ -57,6 +63,21 @@ class MainActivity : AppCompatActivity() {
             if (locationList.isNotEmpty()) {
                 //The last location in the list is the newest
                 val location = locationList.last()
+                val enabled = mainViewModel.isEnabled.value
+
+
+                val geoCoder = Geocoder(this@MainActivity)
+                val currentLocation = geoCoder.getFromLocation(
+                    location.latitude,
+                    location.longitude,
+                    1
+                )
+                 val locality = "${currentLocation.first().locality}, ${currentLocation.first().countryCode}"
+                 val lat = location.latitude.toString()
+                 val lon = location.longitude.toString()
+                 val place = PlaceItem(locality, lat, lon,  isAutoLocation = true, isChecked = true)
+                 mainViewModel.addAutoPlaceItem(place, this@MainActivity)
+
             }
 
         }
@@ -80,22 +101,22 @@ class MainActivity : AppCompatActivity() {
         checkLocationPermission()
 
 
+
         autoLocation()
 
-
-
-        mainViewModel.weather.observe(this, {
-           it?.let {
-
-           }
-        })
-
-        mainViewModel.isEnabled.observe(this, { isInvalid ->
+        mainViewModel.isEnabled.observe(this, Observer<Boolean> { isInvalid ->
             if (isInvalid) {
+                mainViewModel.removeAutoPlaceItem()
                 mainViewModel.showLocationIsDisabledAlert(this)
+                Toast.makeText(this, "on", Toast.LENGTH_LONG).show()
+            }
+            else {
+                Toast.makeText(this, "off", Toast.LENGTH_LONG).show()
             }
 
         })
+
+
 
         mainViewModel.goToLocationSettings.observe(this, {
             if (it) {
@@ -104,6 +125,8 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+
+
 
         mainViewModel.status.observe(this, {
             when (it.name) {
@@ -116,8 +139,6 @@ class MainActivity : AppCompatActivity() {
 
           setupToolbar()
          setupViewpager2()
-
-        mainViewModel.getWeather()
 
 
     }

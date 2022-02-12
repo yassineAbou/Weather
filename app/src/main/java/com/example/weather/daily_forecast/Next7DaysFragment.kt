@@ -29,7 +29,7 @@ class Next7DaysFragment : Fragment() {
         setupAdapter()
         setupViewModelDataBinding()
 
-        val weatherResult = mainViewModel.getWeatherResult()
+        val weatherResult = mainViewModel.weather.value
         weatherResult?.let { next7DaysViewModel.displayDailyWeather(it.daily) }
 
 

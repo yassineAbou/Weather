@@ -1,6 +1,7 @@
 package com.example.weather.network
 
 import com.example.weather.util.Constants.BASE_URL
+import com.example.weather.util.Constants.OPENWEATHERMAP_ID
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.Retrofit
@@ -19,21 +20,19 @@ private val moshi = Moshi.Builder()
 private val retrofit = Retrofit.Builder()
     .addConverterFactory(MoshiConverterFactory.create(moshi))
     .baseUrl(BASE_URL)
+    .client(HTTPLogger.getLogger())
     .build()
 
 
 interface WeatherApiService {
-    /**
-     * Returns a Coroutine [List] of [MarsProperty] which can be fetched in a Coroutine scope.
-     * The @GET annotation indicates that the "realestate" endpoint will be requested with the GET
-     * HTTP method
-     */
+
     @GET("onecall")
     suspend fun getWeatherApi(
         @Query("lat") lat: String,
         @Query("lon") lon: String,
-        @Query("appid") appid: String,
-        @Query("units") unit: String
+        @Query("exclude") minute: String = "minutely",
+        @Query("appid") appid: String = OPENWEATHERMAP_ID,
+        @Query("units") unit: String = "metric"
     ): WeatherResult
 }
 

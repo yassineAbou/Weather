@@ -2,5 +2,6 @@
     <string name="app_name">Weather</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <string name="open_weather_img">https://openweathermap.org/img/wn/%1$s.png</string>
+    <string name="open_weather_img">https://openweathermap.org/img/wn/%1$s@2x.png</string>
+
 </resources>

@@ -6,7 +6,6 @@ data class WeatherResult(
     val hourly: List<Hourly>,
     val lat: Double,
     val lon: Double,
-    val minutely: List<Minutely>,
     val timezone: String,
     val timezone_offset: Int
 )
@@ -25,7 +24,6 @@ data class Current(
     val visibility: Int,
     val weather: List<Weather>,
     val wind_deg: Int,
-    val wind_gust: Double,
     val wind_speed: Double
 )
 
@@ -38,7 +36,7 @@ data class Daily(
     val moon_phase: Double,
     val moonrise: Int,
     val moonset: Int,
-    val pop: Double,
+    val pop: Float,
     val pressure: Int,
     val sunrise: Int,
     val sunset: Int,
@@ -56,7 +54,7 @@ data class Hourly(
     val dt: Int,
     val feels_like: Double,
     val humidity: Int,
-    val pop: Int,
+    val pop: Float,
     val pressure: Int,
     val temp: Double,
     val uvi: Double,
@@ -65,11 +63,6 @@ data class Hourly(
     val wind_deg: Int,
     val wind_gust: Double,
     val wind_speed: Double
-)
-
-data class Minutely(
-    val dt: Int,
-    val precipitation: Int
 )
 
 data class Weather(

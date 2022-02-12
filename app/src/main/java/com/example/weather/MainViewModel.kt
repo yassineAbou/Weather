@@ -1,23 +1,34 @@
 package com.example.weather
 
+import android.app.AlertDialog
+import android.app.Application
 import android.content.Context
-import androidx.appcompat.app.AlertDialog
+import android.location.Address
+import android.location.Geocoder
+import android.util.Log
 import androidx.lifecycle.*
-import com.example.weather.network.WeatherApi
+import com.example.weather.database.PlaceItem
 import com.example.weather.network.WeatherResult
-import com.example.weather.place.PlaceItem
+import com.example.weather.repository.PlaceRepository
 import com.example.weather.repository.WeatherRepository
-import com.example.weather.util.Constants
-import com.example.weather.util.notifyObserver
-import kotlinx.coroutines.launch
+import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.*
+
 
 enum class WeatherApiStatus { LOADING, ERROR, DONE }
 
-class MainViewModel(private val weatherRepository: WeatherRepository) : ViewModel() {
+private const val TAG = "MainViewModel"
+
+class MainViewModel(
+    private val weatherRepository: WeatherRepository,
+    private val placeRepository: PlaceRepository,
+    private val application: Application
+) : ViewModel() {
+
 
     private val _status = MutableLiveData<WeatherApiStatus>()
 
-    val status: LiveData<WeatherApiStatus>
+    val status: MutableLiveData<WeatherApiStatus>
         get() = _status
 
 
@@ -26,31 +37,157 @@ class MainViewModel(private val weatherRepository: WeatherRepository) : ViewMode
     val weather: MutableLiveData<WeatherResult?>
         get() = _weather
 
-    fun getWeather() {
+    suspend fun getWeather(lat: String, lon: String) {
+        _status.value = WeatherApiStatus.LOADING
+        try {
+            _weather.value = weatherRepository.getWeather(
+                lat = lat,
+                lon = lon
+            )
+            _status.value = WeatherApiStatus.DONE
+        } catch (e: Exception) {
+            _status.value = WeatherApiStatus.ERROR
+            Log.e(TAG, "$e",)
+        }
+    }
+
+
+    private val _isAdded = MutableLiveData<Boolean>()
+    val isAdded: MutableLiveData<Boolean>
+        get() = _isAdded
+
+    fun onUpdated() {
+        _isAdded.value = true
+    }
+
+    fun onUpdatedComplete() {
+        _isAdded.value = false
+    }
+
+    val placeItems = placeRepository.allPlaceItems
+
+
+    fun addPlaceItem(placeItem: PlaceItem) {
         viewModelScope.launch {
-            _status.value = WeatherApiStatus.LOADING
-            try {
-                _weather.value = weatherRepository.getWeather(
-                    lat = "29.696901",
-                    lon= "-9.733198",
-                    appid = Constants.OPENWEATHERMAP_ID,
-                    unit = "metric"
-                )
-                _status.value = WeatherApiStatus.DONE
-            } catch (e: Exception) {
-                _status.value = WeatherApiStatus.ERROR
+            with(Dispatchers.IO) {
+                val isExist = async { exists(placeItem.locality) }
+                if (!isExist.await()) {
+                    insert(placeItem)
+                    onUpdated()
+                }
             }
         }
     }
 
-    fun getWeatherResult() = _weather.value
+    fun updateIsChecked(item: PlaceItem) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+
+                val child1 = async { getPlaceItem(item.id) }
+                val placeItem = child1.await()
+
+                placeItem?.let {
+                    if (!it.isChecked) {
+                        it.isChecked = true
+                        val child2 = launch { update(it) }
+                        child2.join()
+                        Log.e(TAG, "${placeItem.locality}")
+                    }
+                }
 
 
-    private var _placeItems = MutableLiveData(mutableListOf<PlaceItem>())
-    val placeItems: MutableLiveData<MutableList<PlaceItem>> = _placeItems
+                val child3 = async { getPlaces() }
+                val places = child3.await()
+
+                val runningTasks = places.map { place ->
+                    async {
+                        val singlePlaceItem = getPlaceItem(place.id)
+                        place to singlePlaceItem
+                    }
+                }
+
+                val responses = runningTasks.awaitAll()
+
+                responses.forEach { (place, response) ->
+                    if (response != placeItem) {
+                        places.find { it.id == place.id }?.isChecked = false
+                        update(place)
+                    }
+                }
+
+                }
+            }
+      }
+
+
+
+     fun getCityLatitude(context: Context, city: String?) {
+
+               val geocoder = Geocoder(context, context.resources.configuration.locale)
+               var addresses: List<Address>? = null
+               var latLng: LatLng? = null
+               try {
+                   addresses = geocoder.getFromLocationName(city, 1)
+                   val address = addresses[0]
+                   latLng = LatLng(address.latitude, address.longitude)
+                   val currentLocation = geocoder.getFromLocation(
+                       latLng.latitude,
+                       latLng.longitude,
+                       1
+                   )
+
+                   val locality = "${currentLocation.first().locality}, ${currentLocation.first().countryCode}"
+                   val lat = latLng.latitude.toString()
+                   val lon = latLng.longitude.toString()
+                   val newPlace = PlaceItem(locality, lat, lon, isChecked = true)
+                   addPlaceItem(newPlace)
+
+               } catch (e: Exception) {
+                   showErrorDialog(context)
+               }
+
+    }
+
+    private val _navigateToNewLocationDialog = MutableLiveData<Boolean> ()
+    val navigateToNewLocationDialog: MutableLiveData<Boolean>
+        get() = _navigateToNewLocationDialog
+
+    fun onNavigation() {
+        _navigateToNewLocationDialog.value = true
+    }
+
+     fun onNavigationComplete() {
+        _navigateToNewLocationDialog.value = false
+    }
+
+    fun showErrorDialog(context: Context) {
+        val alertDialog = AlertDialog.Builder(context)
+        alertDialog.apply {
+            setTitle("Error")
+            setMessage("This city doesn't exist")
+            setCancelable(false)
+            setPositiveButton("TRY AGAIN") { _, _ ->
+                   onNavigation()
+            }
+            setNegativeButton("CLOSE") { _, _ ->   }
+
+        }.create().show()
+    }
+
+
+
+
+    fun removePlaceItem(placeItem: PlaceItem) {
+        if (!placeItem.isAutoLocation)
+            viewModelScope.launch {
+                delete(placeItem)
+                if (placeItem.isChecked)
+                onUpdated()
+            }
+    }
 
     private val _isEnabled = MutableLiveData<Boolean> ()
-    val isEnabled: LiveData<Boolean>
+    val isEnabled: MutableLiveData<Boolean>
         get() = _isEnabled
 
     fun onInvalid() {
@@ -63,7 +200,7 @@ class MainViewModel(private val weatherRepository: WeatherRepository) : ViewMode
 
 
     private val _goToLocationSettings = MutableLiveData<Boolean> ()
-    val goToLocationSettings: LiveData<Boolean>
+    val goToLocationSettings: MutableLiveData<Boolean>
         get() = _goToLocationSettings
 
     private fun onGoToLocationSetting() {
@@ -73,24 +210,28 @@ class MainViewModel(private val weatherRepository: WeatherRepository) : ViewMode
     fun onGoComplete() {
         _isEnabled.value = false
     }
-    /*
-    fun addPlaceItem(placeItem: PlaceItem) {
-        _placeItems.value?.add(placeItem)
-        _placeItems.notifyObserver()
-    }
-     */
 
-    fun addAutoPlaceItem(autoPlaceItem: PlaceItem) {
-        _placeItems.value?.add(0,autoPlaceItem)
-        _placeItems.notifyObserver()
+
+    fun addAutoPlaceItem(placeItem: PlaceItem, context: Context) {
+        val isAutoLocation = placeItem.isAutoLocation
+        if (isAutoLocation and (_isEnabled.value != true)) {
+            addPlaceItem(placeItem)
+        }
     }
 
     fun removeAutoPlaceItem() {
-        if (_placeItems.value?.isNotEmpty() == true) {
-            _placeItems.value?.removeAt(0)
-            _placeItems.notifyObserver()
+        viewModelScope.launch {
+            with(Dispatchers.IO) {
+                val autoLocation = async { getAutoLocation(true) }
+                autoLocation.await()?.let {
+                    delete(it)
+                    if (it.isChecked)
+                    onUpdated()
+                }
+            }
         }
     }
+
 
     fun showLocationIsDisabledAlert(context: Context) {
         val alertDialog = AlertDialog.Builder(context)
@@ -108,13 +249,42 @@ class MainViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         }.create().show()
     }
 
+    //-------
+    // Data
+    //-------
 
-    class Factory(private val weatherRepository: WeatherRepository) : ViewModelProvider.Factory {
+    fun getLastPlace(): LiveData<PlaceItem?> = placeRepository.getLastPlace()
+
+    suspend fun insert(placeItem: PlaceItem) = placeRepository.insert(placeItem)
+
+    suspend fun  getPlaceItem(id: Long) = placeRepository.getPlaceItem(id)
+
+    suspend fun  getPlaces() = placeRepository.places()
+
+    suspend fun exists(locality: String) = placeRepository.exists(locality)
+
+    suspend fun update(placeItem: PlaceItem) = placeRepository.update(placeItem)
+
+    suspend fun getAutoLocation(isAutoLocation: Boolean) = placeRepository.getAutoLocation(isAutoLocation)
+
+    suspend fun delete(placeItem: PlaceItem) = placeRepository.delete(placeItem)
+
+
+
+
+    //------------------
+    // ViewModelFactory
+    //------------------
+
+    class Factory(
+        private val weatherRepository: WeatherRepository,
+        private val placeRepository: PlaceRepository,
+        private val application: Application
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return MainViewModel(weatherRepository) as T
+            return MainViewModel(weatherRepository, placeRepository, application) as T
         }
     }
-
 
 
 }

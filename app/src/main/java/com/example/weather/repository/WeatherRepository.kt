@@ -9,10 +9,11 @@ class WeatherRepository {
 
     suspend fun getWeather(
         @Query("lat") lat: String,
-        @Query("lon") lon: String,
-        @Query("appid") appid: String,
-        @Query("units") unit: String
+        @Query("lon") lon: String
     ): WeatherResult {
-         return WeatherApi.RETROFIT_SERVICE.getWeatherApi(lat, lon, appid, unit)
+         return WeatherApi.RETROFIT_SERVICE.getWeatherApi(
+            lat =  lat,
+            lon =  lon
+         )
     }
 }

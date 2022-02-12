@@ -1,33 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+   >
 
     <data>
 
         <variable
             name="placeItem"
-            type="com.example.weather.place.PlaceItem"/>
+            type="com.example.weather.database.PlaceItem"/>
+
+        <variable
+            name="clickListenerBind"
+            type="com.example.weather.place.PlaceItemListener" />
+
+        <variable
+            name="clickListenerBind2"
+            type="com.example.weather.place.PlaceItemListener2" />
     </data>
 
 
 
 <androidx.constraintlayout.widget.ConstraintLayout
+
     android:layout_width="match_parent"
     android:layout_height="@dimen/_50sdp"
-    android:background="@color/white"
+    android:background="@{placeItem.isChecked ? @color/white : @color/gray300}"
     android:layout_marginBottom="@dimen/_8sdp"
     android:layout_marginStart="@dimen/_11sdp"
-    android:layout_marginEnd="@dimen/_11sdp">
+    android:layout_marginEnd="@dimen/_11sdp"
+    android:onClick="@{() -> clickListenerBind2.onClick2(placeItem)}">
+
+
 
     <RadioButton
-        android:id="@+id/radioButton"
+        android:id="@+id/radio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_11sdp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:checked="@{placeItem.isChecked}"
+        android:onCheckedChanged="@{() -> clickListenerBind2.onClick2(placeItem)}"
+        />
 
     <TextView
         android:id="@+id/place"
@@ -37,32 +53,34 @@
         tools:text="Agadir,MA"
         android:textColor="@color/black"
         android:textSize="@dimen/_17ssp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/current_time"
-        app:layout_constraintStart_toEndOf="@+id/radioButton" />
-
-    <TextView
-        android:id="@+id/current_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_12sdp"
-        tools:text="Mon, 18:28"
-        currentTime="@{placeItem}"
-        android:textColor="@color/black"
-        android:layout_marginStart="@dimen/_3sdp"
-        app:layout_constraintStart_toEndOf="@+id/place"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/radio"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <ImageButton
         android:id="@+id/remove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/_11sdp"
-        android:background="@color/white"
+        android:background="@{placeItem.isChecked ? @color/white : @color/gray300}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:src="@drawable/ic_baseline_close_24"
-        delete="@{placeItem}"
+        Icon="@{placeItem}"
+        android:onClick="@{() -> clickListenerBind.onClick(placeItem)}"
         tools:ignore="SpeakableTextPresentCheck" />
+
+    <TextView
+        android:id="@+id/current_weather"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:textSize="@dimen/_13ssp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/radio"
+        app:layout_constraintTop_toBottomOf="@+id/place" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

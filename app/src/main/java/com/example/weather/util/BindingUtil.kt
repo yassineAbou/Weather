@@ -5,10 +5,45 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.weather.R
 import com.example.weather.daily_forecast.DailyItemsAdapter
 import com.example.weather.hourly_forecast.HourlyItemsAdapter
 import com.example.weather.network.Daily
 import com.example.weather.network.Hourly
+import com.example.weather.database.PlaceItem
+
+//------------------------
+// Place
+//------------------------
+
+@BindingAdapter("locality")
+fun TextView.setDateFormatted(item: PlaceItem) {
+    item?.let {
+        text = item.locality
+    }
+}
+/*
+@BindingAdapter("currentWeather")
+fun TextView.currentWeather(item: PlaceItem) {
+    item?.let {
+        text = item.currentWeather
+    }
+}
+
+ */
+
+@BindingAdapter("Icon")
+fun ImageView.seWeatherImage(item: PlaceItem) {
+    item?.let {
+        setImageResource(
+            when (item.isAutoLocation) {
+                true -> R.drawable.ic_baseline_gps_fixed_24
+                false -> R.drawable.ic_baseline_close_24
+            }
+        )
+    }
+
+}
 
 //------------------------
 // fragment_today_xml
@@ -48,7 +83,7 @@ fun ImageView.setHourlyWeatherImage(item: Hourly) {
     item?.let {
         bindImage(
             imgView = this,
-            imgUrl = "https://openweathermap.org/img/wn/${item.weather[0].icon}.png"
+            imgUrl = "https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png"
         )
     }
 
@@ -104,7 +139,7 @@ fun ImageView.setDailyWeatherImage(item: Daily) {
     item?.let {
         bindImage(
             imgView = this,
-            imgUrl = "https://openweathermap.org/img/wn/${item.weather[0].icon}.png"
+            imgUrl = "https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png"
         )
     }
 

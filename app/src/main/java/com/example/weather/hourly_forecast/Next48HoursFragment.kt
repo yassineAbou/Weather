@@ -30,7 +30,7 @@ class Next48HoursFragment : Fragment() {
             setupViewModelDataBinding()
             setupAdapter()
 
-            val weatherResult = mainViewModel.getWeatherResult()
+            val weatherResult = mainViewModel.weather.value
             weatherResult?.let { next48HoursViewModel.displayHourlyWeather(weatherResult.hourly) }
 
             return binding.root
