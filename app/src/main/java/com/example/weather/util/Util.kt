@@ -1,13 +1,18 @@
 package com.example.weather.util
 
 import android.content.Context
+import android.location.Address
+import android.location.Geocoder
 import android.location.LocationManager
+import android.util.Log
 import android.widget.ImageView
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.*
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 fun isLocationEnabled(mContext: Context): Boolean {
     val lm = mContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -18,6 +23,15 @@ fun isLocationEnabled(mContext: Context): Boolean {
 fun <T> MutableLiveData<T>.notifyObserver() {
     this.value = this.value
 }
+
+fun <T, M> StateFlow<T>.map(
+    coroutineScope : CoroutineScope,
+    mapper : (value : T) -> M
+) : StateFlow<M> = map { mapper(it) }.stateIn(
+    coroutineScope,
+    SharingStarted.Eagerly,
+    mapper(value)
+)
 
 fun bindImage(imgView: ImageView, imgUrl: String?) {
     Glide.with(imgView.context)
@@ -37,3 +51,4 @@ fun convertToDay(dt: Int): String? {
     val sdf = SimpleDateFormat("EEEE")
     return sdf.format(date)
 }
+

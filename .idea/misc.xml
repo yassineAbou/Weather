@@ -3,17 +3,25 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.1" />
+        <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.1" />
+        <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/drawable/ic_connection_error.xml" value="0.1" />
+        <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/drawable/loading_img.xml" value="0.1" />
+        <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout-land/activity_main.xml" value="0.22708333333333333" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout-land/fragment_today.xml" value="0.19879518072289157" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout/daily_item.xml" value="0.2" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout/fragment_location.xml" value="0.12" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout/fragment_new_place_dialog.xml" value="0.2" />
-        <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout/fragment_next48_hours.xml" value="0.12222222222222222" />
+        <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout/fragment_next48_hours.xml" value="0.22" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout/fragment_next7_days.xml" value="0.2" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout/fragment_search.xml" value="0.2" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout/fragment_today.xml" value="0.2" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout/hourly_item.xml" value="0.2" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/layout/place_item.xml" value="0.2" />
+        <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/menu/location_menu.xml" value="0.2" />
+        <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/menu/weather_menu.xml" value="0.2" />
+        <entry key="..\:/Users/Pc666/AndroidStudioProjects/PP/Weather2/app/src/main/res/xml/root_preferences.xml" value="0.3061797752808989" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/Weather2/app/src/main/res/drawable/gradient.xml" value="0.21614583333333334" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/Weather2/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.21614583333333334" />
         <entry key="..\:/Users/Pc666/AndroidStudioProjects/Weather2/app/src/main/res/drawable/ic_baseline_refresh_24.xml" value="0.21614583333333334" />

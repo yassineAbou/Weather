@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 import com.example.weather.network.WeatherResult
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PlaceDoe {
@@ -18,20 +19,25 @@ interface PlaceDoe {
     suspend fun update(placeItem: PlaceItem)
 
     @Query("SELECT * FROM PLACE_ITEM_TABLE ORDER BY id DESC")
-    fun getAllPlaceItems(): LiveData<List<PlaceItem>>
+    fun getAllPlaceItems(): Flow<List<PlaceItem>>
 
     @Query("SELECT * FROM PLACE_ITEM_TABLE WHERE id=:id ")
     suspend fun getPlaceItem(id: Long): PlaceItem?
 
-    @Query("SELECT * FROM PLACE_ITEM_TABLE")
-     suspend fun getPlaces(): List<PlaceItem>
+
 
     @Query("SELECT * FROM PLACE_ITEM_TABLE ORDER BY id DESC LIMIT 1")
-    fun getLastPlace(): LiveData<PlaceItem?>
+    fun getLastPlace(): Flow<PlaceItem?>
 
-    @Query("SELECT EXISTS (SELECT 1 FROM PLACE_ITEM_TABLE WHERE locality = :locality)")
+    @Query("SELECT EXISTS (SELECT * FROM PLACE_ITEM_TABLE WHERE locality = :locality)")
     suspend fun exists(locality: String): Boolean
 
     @Query("SELECT * FROM  PLACE_ITEM_TABLE WHERE isAutoLocation = :isAutoLocation")
     suspend fun getAutoLocationItem(isAutoLocation: Boolean): PlaceItem?
+
+    @Query("SELECT * FROM PLACE_ITEM_TABLE WHERE isChecked = :isChecked")
+    fun getCheckedItem(isChecked: Boolean): Flow<PlaceItem?>
+
+    @Query("UPDATE PLACE_ITEM_TABLE   SET isChecked = :isChecked  WHERE id != :placeId")
+    suspend fun uncheckAllExcept(placeId: Long, isChecked: Boolean)
 }

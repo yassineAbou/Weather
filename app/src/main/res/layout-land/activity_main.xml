@@ -14,8 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="1dp"
-        android:minHeight="?attr/actionBarSize"
+        android:minHeight="?android:attr/actionBarSize"
         app:theme="@style/ToolBarStyle"
+        app:titleTextAppearance="@style/ToolbarTitle"
+        app:subtitleTextAppearance="@style/ToolbarSubtitle"
         android:background="@drawable/gradient"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -29,7 +29,8 @@
     android:layout_marginBottom="@dimen/_8sdp"
     android:layout_marginStart="@dimen/_11sdp"
     android:layout_marginEnd="@dimen/_11sdp"
-    android:onClick="@{() -> clickListenerBind2.onClick2(placeItem)}">
+    android:onClick="@{() -> clickListenerBind2.onClick2(placeItem)}"
+    >
 
 
 
@@ -42,7 +43,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:checked="@{placeItem.isChecked}"
-        android:onCheckedChanged="@{() -> clickListenerBind2.onClick2(placeItem)}"
+        android:onClick="@{() -> clickListenerBind2.onClick2(placeItem)}"
         />
 
     <TextView

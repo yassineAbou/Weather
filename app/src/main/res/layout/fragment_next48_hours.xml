@@ -15,6 +15,17 @@
     tools:context=".hourly_forecast.Next48HoursFragment"
     android:background="@drawable/gradient">
 
+    <ImageView
+        android:id="@+id/next_hours_status"
+        android:layout_width="@dimen/_100sdp"
+        android:layout_height="@dimen/_100sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@drawable/loading_animation"
+        tools:visibility="gone"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/hourly_recycler_view"
         android:layout_width="match_parent"

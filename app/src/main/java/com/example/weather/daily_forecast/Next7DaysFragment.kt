@@ -5,12 +5,14 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.MainViewModel
 import com.example.weather.R
 
 import com.example.weather.databinding.FragmentNext7DaysBinding
+import kotlinx.coroutines.flow.collectLatest
 
 
 class Next7DaysFragment : Fragment() {
@@ -24,16 +26,49 @@ class Next7DaysFragment : Fragment() {
         savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         binding = FragmentNext7DaysBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
 
         setupAdapter()
         setupViewModelDataBinding()
 
-        val weatherResult = mainViewModel.weather.value
-        weatherResult?.let { next7DaysViewModel.displayDailyWeather(it.daily) }
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            mainViewModel.status.collectLatest {
+                it?.let {
+                    when (it.name) {
+                        "LOADING" -> {
+                            hideDailyRecyclerview()
+                            binding.nextDaysStatus.setImageResource(R.drawable.loading_animation)
+                        }
+                        "DONE" -> {
+                            showDailyRecyclerview()
+                        }
+                        "ERROR" -> {
+                            hideDailyRecyclerview()
+                            binding.nextDaysStatus.setImageResource(R.drawable.ic_connection_error)
+                        }
+                    }
+                }
+            }
+        }
 
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            mainViewModel.weather.collectLatest {
+                it?.let {
+                    next7DaysViewModel.displayDailyWeather(it.daily)
+                }
+            }
+        }
 
         return binding.root
+    }
+
+    private fun showDailyRecyclerview() {
+        binding.nextDaysStatus.visibility = View.GONE
+        binding.dailyRecyclerView.visibility = View.VISIBLE
+    }
+
+    private fun hideDailyRecyclerview() {
+        binding.nextDaysStatus.visibility = View.VISIBLE
+        binding.dailyRecyclerView.visibility = View.GONE
     }
 
     private fun setupViewModelDataBinding() {
@@ -41,7 +76,6 @@ class Next7DaysFragment : Fragment() {
             next7daysViewModelBind = next7DaysViewModel
             lifecycleOwner = viewLifecycleOwner
         }
-
     }
 
     private fun setupAdapter() {
@@ -51,11 +85,6 @@ class Next7DaysFragment : Fragment() {
         binding.dailyRecyclerView.layoutManager = manager
     }
 
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.weather_menu, menu)
-    }
 
 
 

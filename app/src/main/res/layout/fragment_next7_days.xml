@@ -15,6 +15,17 @@
     tools:context=".daily_forecast.Next7DaysFragment"
     android:background="@drawable/gradient">
 
+    <ImageView
+        android:id="@+id/next_days_status"
+        android:layout_width="@dimen/_100sdp"
+        android:layout_height="@dimen/_100sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@drawable/loading_animation"
+        tools:visibility="gone"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/dailyRecyclerView"
         android:layout_width="match_parent"

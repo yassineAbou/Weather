@@ -2,7 +2,6 @@ package com.example.weather
 
 
 import android.Manifest
-import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
@@ -18,23 +17,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
+import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.weather.database.PlaceDatabase
-import com.example.weather.database.PlaceDoe
 import com.example.weather.database.PlaceItem
-import com.example.weather.util.Constants.MY_PERMISSIONS_REQUEST_BACKGROUND_LOCATION
-import com.example.weather.util.Constants.MY_PERMISSIONS_REQUEST_LOCATION
-
-
+import com.example.weather.database.PreferencesManager
 import com.example.weather.databinding.ActivityMainBinding
 import com.example.weather.repository.PlaceRepository
 import com.example.weather.repository.WeatherRepository
+import com.example.weather.util.ConnectivityMonitor
+import com.example.weather.util.Constants.MY_PERMISSIONS_REQUEST_BACKGROUND_LOCATION
+import com.example.weather.util.Constants.MY_PERMISSIONS_REQUEST_LOCATION
 import com.example.weather.util.isLocationEnabled
 import com.google.android.gms.location.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -43,11 +44,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val weatherRepository = WeatherRepository()
+    private val preferencesManager = PreferencesManager(this)
     private val mainViewModel: MainViewModel by viewModels {
         MainViewModel.Factory(weatherRepository, PlaceRepository(PlaceDatabase.getInstance(
-            requireNotNull(this).application).placeDoe), requireNotNull(this).application)
+            requireNotNull(this).application).placeDoe), preferencesManager , requireNotNull(this).application)
     }
-
 
     private var fusedLocationProvider: FusedLocationProviderClient? = null
     private val locationRequest: LocationRequest = LocationRequest.create().apply {
@@ -63,22 +64,20 @@ class MainActivity : AppCompatActivity() {
             if (locationList.isNotEmpty()) {
                 //The last location in the list is the newest
                 val location = locationList.last()
-                val enabled = mainViewModel.isEnabled.value
 
-
-                val geoCoder = Geocoder(this@MainActivity)
-                val currentLocation = geoCoder.getFromLocation(
-                    location.latitude,
-                    location.longitude,
-                    1
-                )
-                 val locality = "${currentLocation.first().locality}, ${currentLocation.first().countryCode}"
-                 val lat = location.latitude.toString()
-                 val lon = location.longitude.toString()
-                 val place = PlaceItem(locality, lat, lon,  isAutoLocation = true, isChecked = true)
-                 mainViewModel.addAutoPlaceItem(place, this@MainActivity)
-
-            }
+                        val geoCoder = Geocoder(this@MainActivity)
+                        val currentLocation = geoCoder.getFromLocation(
+                            location.latitude,
+                            location.longitude,
+                            1
+                        )
+                        val locality =
+                            "${currentLocation.first().locality}, ${currentLocation.first().countryCode}"
+                        val lat = location.latitude.toString()
+                        val lon = location.longitude.toString()
+                        val place = PlaceItem(locality, lat, lon, isAutoLocation = true)
+                        mainViewModel.setAutoLocation(place)
+                    }
 
         }
     }
@@ -95,69 +94,45 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-
-
         fusedLocationProvider = LocationServices.getFusedLocationProviderClient(this)
         checkLocationPermission()
 
 
-
-        autoLocation()
-
-        mainViewModel.isEnabled.observe(this, Observer<Boolean> { isInvalid ->
-            if (isInvalid) {
-                mainViewModel.removeAutoPlaceItem()
-                mainViewModel.showLocationIsDisabledAlert(this)
-                Toast.makeText(this, "on", Toast.LENGTH_LONG).show()
+        ConnectivityMonitor(this, this) { isConnected ->
+            lifecycle.coroutineScope.launch {
+                mainViewModel.getCheckedItem(true).collect {
+                    it?.let {
+                        mainViewModel.getWeather(it.lat, it.lon)
+                        mainViewModel.setLocation(it.locality.substringBefore(','))
+                    }
+                }
             }
-            else {
-                Toast.makeText(this, "off", Toast.LENGTH_LONG).show()
+       }
+
+
+        /*
+        lifecycleScope.launchWhenStarted {
+            mainViewModel.status.collectLatest {
+                it?.let {
+                    when (it.name) {
+                        "LOADING" -> Toast.makeText(this@MainActivity, "LOADING", Toast.LENGTH_SHORT).show()
+                        "DONE" -> Toast.makeText(this@MainActivity, "DONE", Toast.LENGTH_SHORT).show()
+                        "ERROR" -> {
+                            Toast.makeText(this@MainActivity, "ERROR", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             }
+        }
 
-        })
-
-
-
-        mainViewModel.goToLocationSettings.observe(this, {
-            if (it) {
-                mainViewModel.showLocationIsDisabledAlert(this)
-                locationSettings()
-            }
-
-        })
-
-
-
-        mainViewModel.status.observe(this, {
-            when (it.name) {
-                "LOADING" -> Toast.makeText(this, "LOADING", Toast.LENGTH_SHORT).show()
-                "DONE" -> Toast.makeText(this, "DONE", Toast.LENGTH_SHORT).show()
-                "ERROR" -> Toast.makeText(this, "ERROR", Toast.LENGTH_SHORT).show()
-            }
-        })
+         */
 
 
           setupToolbar()
-         setupViewpager2()
+          setupViewpager2()
 
 
     }
-
-
-    private fun locationSettings() {
-        startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-        mainViewModel.onGoComplete()
-    }
-
-    private fun autoLocation() {
-        when (isLocationEnabled(this)) {
-            false -> mainViewModel.onInvalid()
-            else -> return
-
-        }
-    }
-
-
 
     //--------------------------------
     // Setup viewpager and toolbar
@@ -186,28 +161,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun next5DaysBar() {
         binding.apply {
-            toolbar.title = "Location"
-            toolbar.subtitle = "Next 7 days"
+            toolbar.title = mainViewModel.currentLocation.value
+            toolbar.subtitle = "Next 7 days, unit:°C"
         }
     }
 
     private fun next24HoursBar() {
         binding.apply {
-            toolbar.title = "Location"
-            toolbar.subtitle = "Next 48 hours"
+            toolbar.title = mainViewModel.currentLocation.value
+            toolbar.subtitle = "Next 48 hours, unit:°C"
         }
     }
 
     private fun todayBar() {
         binding.apply {
-            toolbar.title = "Location"
-            toolbar.subtitle = "Day, time"
+            toolbar.title = mainViewModel.currentLocation.value
+            toolbar.subtitle = "Today, unit:°C"
         }
     }
 
     private fun locationBar() {
         binding.apply {
-            toolbar.title = "Location"
+            toolbar.title = " Auto location"
             toolbar.subtitle = ""
         }
 

@@ -7,9 +7,13 @@ import com.example.weather.database.PlaceItem
 
 class PlaceRepository(private val placeDoe: PlaceDoe) {
 
-    val allPlaceItems: LiveData<List<PlaceItem>> = placeDoe.getAllPlaceItems()
+    val allPlaceItems = placeDoe.getAllPlaceItems()
 
-    fun getLastPlace(): LiveData<PlaceItem?> = placeDoe.getLastPlace()
+    fun getLastPlace() = placeDoe.getLastPlace()
+
+    fun getCheckedItem(isChecked: Boolean) = placeDoe.getCheckedItem(isChecked)
+
+    suspend fun uncheckAllExcept(placeId: Long, isChecked: Boolean) = placeDoe.uncheckAllExcept(placeId, isChecked)
 
     suspend fun getPlaceItem(id: Long) = placeDoe.getPlaceItem(id)
 
@@ -17,7 +21,7 @@ class PlaceRepository(private val placeDoe: PlaceDoe) {
 
     suspend fun getAutoLocation(isAutoLocation: Boolean) = placeDoe.getAutoLocationItem(isAutoLocation)
 
-    suspend fun places() = placeDoe.getPlaces()
+
 
     suspend fun insert(placeItem: PlaceItem) = placeDoe.insert(placeItem)
 

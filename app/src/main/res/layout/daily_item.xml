@@ -26,7 +26,8 @@
         tools:srcCompat="@tools:sample/backgrounds/scenic"
         app:layout_constraintBottom_toTopOf="@+id/daily_border"
         daily_img="@{dailyItem}"
-        android:layout_marginTop="@dimen/_10sdp"/>
+        android:layout_marginTop="@dimen/_10sdp"
+        android:adjustViewBounds="true"/>
 
     <TextView
         android:id="@+id/daily_temperature_one"

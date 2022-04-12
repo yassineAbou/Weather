@@ -1,6 +1,5 @@
 package com.example.weather
 
-import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
 import android.location.Address
@@ -8,64 +7,103 @@ import android.location.Geocoder
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.weather.database.PlaceItem
+import com.example.weather.database.PreferencesManager
 import com.example.weather.network.WeatherResult
 import com.example.weather.repository.PlaceRepository
+
 import com.example.weather.repository.WeatherRepository
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+import java.io.IOException
+import java.util.*
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
+
+// TODO: auto location
+// TODO: update
+// TODO: permissions
+// TODO: if there is something else to do
 
 enum class WeatherApiStatus { LOADING, ERROR, DONE }
 
 private const val TAG = "MainViewModel"
 
+
+data class UiState(
+    val GetLastItem: Boolean = false,
+    val NavigateToNewLocationDialog: Boolean = false,
+    val ShowAlertDialog: Boolean = false,
+    val GoToLocationSettings: Boolean = false,
+    val ShowErrorDialog: Boolean = false,
+)
+
 class MainViewModel(
     private val weatherRepository: WeatherRepository,
     private val placeRepository: PlaceRepository,
+    private val preferencesManager: PreferencesManager,
     private val application: Application
 ) : ViewModel() {
 
 
-    private val _status = MutableLiveData<WeatherApiStatus>()
 
-    val status: MutableLiveData<WeatherApiStatus>
-        get() = _status
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+    val selected = preferencesManager.selected
 
-    private val _weather = MutableLiveData<WeatherResult?>()
+    fun readSelected( callback: (Boolean) -> Unit)   {
+        viewModelScope.launch(Dispatchers.IO) {
+             callback(preferencesManager.readSelected())
 
-    val weather: MutableLiveData<WeatherResult?>
-        get() = _weather
-
-    suspend fun getWeather(lat: String, lon: String) {
-        _status.value = WeatherApiStatus.LOADING
-        try {
-            _weather.value = weatherRepository.getWeather(
-                lat = lat,
-                lon = lon
-            )
-            _status.value = WeatherApiStatus.DONE
-        } catch (e: Exception) {
-            _status.value = WeatherApiStatus.ERROR
-            Log.e(TAG, "$e",)
         }
     }
 
-
-    private val _isAdded = MutableLiveData<Boolean>()
-    val isAdded: MutableLiveData<Boolean>
-        get() = _isAdded
-
-    fun onUpdated() {
-        _isAdded.value = true
+    fun onSelectAutoLocation(selected: Boolean) = viewModelScope.launch(Dispatchers.IO) {
+        preferencesManager.onSelectAutoLocation(selected)
     }
 
-    fun onUpdatedComplete() {
-        _isAdded.value = false
+    private val _status: MutableStateFlow<WeatherApiStatus?> = MutableStateFlow(null)
+    val status = _status.asStateFlow()
+
+    private val _weather: MutableStateFlow<WeatherResult?> = MutableStateFlow(null)
+    val weather = _weather.asStateFlow()
+
+    fun getWeather(lat: String, lon: String) {
+
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _status.value = WeatherApiStatus.LOADING
+                try {
+                    _weather.value = weatherRepository.getWeather(
+                            lat = lat,
+                            lon = lon
+
+                    )
+                    _status.value = WeatherApiStatus.DONE
+                    Log.e(TAG, "getWeather: ${weather.value?.current?.wind_deg}")
+                } catch (e: Exception) {
+                    _status.value = WeatherApiStatus.ERROR
+                    Log.e(TAG, "$e")
+                }
+            }
+        }
+
+    }
+
+    fun onErrorStatus() {
+        _status.value = WeatherApiStatus.ERROR
+    }
+
+    private val _currentLocation: MutableStateFlow<String?> = MutableStateFlow(null)
+    val currentLocation = _currentLocation.asStateFlow()
+
+    fun setLocation(location: String) {
+        _currentLocation.value = location
     }
 
     val placeItems = placeRepository.allPlaceItems
-
 
     fun addPlaceItem(placeItem: PlaceItem) {
         viewModelScope.launch {
@@ -73,108 +111,60 @@ class MainViewModel(
                 val isExist = async { exists(placeItem.locality) }
                 if (!isExist.await()) {
                     insert(placeItem)
-                    onUpdated()
+                    //onUpdated()
+                    onChangeUiState(UiState(GetLastItem = true))
                 }
             }
         }
     }
 
-    fun updateIsChecked(item: PlaceItem) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-
-                val child1 = async { getPlaceItem(item.id) }
-                val placeItem = child1.await()
-
-                placeItem?.let {
-                    if (!it.isChecked) {
-                        it.isChecked = true
-                        val child2 = launch { update(it) }
-                        child2.join()
-                        Log.e(TAG, "${placeItem.locality}")
-                    }
-                }
-
-
-                val child3 = async { getPlaces() }
-                val places = child3.await()
-
-                val runningTasks = places.map { place ->
+    fun checkNewItemAdded(item: PlaceItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newItemAdded =  getPlaceItem(item.id)
+            newItemAdded?.let {
+                listOf(
                     async {
-                        val singlePlaceItem = getPlaceItem(place.id)
-                        place to singlePlaceItem
+                        if (!it.isChecked) {
+                            it.isChecked = true
+                            update(it)
+                        }
+                    },
+                    async {
+                        uncheckAllExcept(it.id, false)
                     }
-                }
-
-                val responses = runningTasks.awaitAll()
-
-                responses.forEach { (place, response) ->
-                    if (response != placeItem) {
-                        places.find { it.id == place.id }?.isChecked = false
-                        update(place)
-                    }
-                }
-
-                }
+                ).awaitAll()
             }
-      }
-
-
-
-     fun getCityLatitude(context: Context, city: String?) {
-
-               val geocoder = Geocoder(context, context.resources.configuration.locale)
-               var addresses: List<Address>? = null
-               var latLng: LatLng? = null
-               try {
-                   addresses = geocoder.getFromLocationName(city, 1)
-                   val address = addresses[0]
-                   latLng = LatLng(address.latitude, address.longitude)
-                   val currentLocation = geocoder.getFromLocation(
-                       latLng.latitude,
-                       latLng.longitude,
-                       1
-                   )
-
-                   val locality = "${currentLocation.first().locality}, ${currentLocation.first().countryCode}"
-                   val lat = latLng.latitude.toString()
-                   val lon = latLng.longitude.toString()
-                   val newPlace = PlaceItem(locality, lat, lon, isChecked = true)
-                   addPlaceItem(newPlace)
-
-               } catch (e: Exception) {
-                   showErrorDialog(context)
-               }
-
+        }
     }
 
-    private val _navigateToNewLocationDialog = MutableLiveData<Boolean> ()
-    val navigateToNewLocationDialog: MutableLiveData<Boolean>
-        get() = _navigateToNewLocationDialog
+    fun getCityLatitude(context: Context, city: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val gc = Geocoder(context)
+                    val addresses: List<Address> =
+                        gc.getFromLocationName(city, 5)
+                   // if (addresses.isNotEmpty()) {
+                        val a = addresses.first()
 
-    fun onNavigation() {
-        _navigateToNewLocationDialog.value = true
-    }
+                        val locality = "${a.locality}, ${a.countryCode}"
+                        val lat = a.latitude.toString()
+                        val lon = a.longitude.toString()
+                        val newPlace = PlaceItem(locality, lat, lon)
+                        addPlaceItem(newPlace)
+                 //   }
 
-     fun onNavigationComplete() {
-        _navigateToNewLocationDialog.value = false
-    }
-
-    fun showErrorDialog(context: Context) {
-        val alertDialog = AlertDialog.Builder(context)
-        alertDialog.apply {
-            setTitle("Error")
-            setMessage("This city doesn't exist")
-            setCancelable(false)
-            setPositiveButton("TRY AGAIN") { _, _ ->
-                   onNavigation()
+            } catch (e: Exception) {
+                onChangeUiState(UiState(ShowErrorDialog = true))
             }
-            setNegativeButton("CLOSE") { _, _ ->   }
-
-        }.create().show()
+        }
     }
 
 
+     fun onChangeUiState(state: UiState) {
+         viewModelScope.launch {
+             _uiState.value = state
+         }
+    }
 
 
     fun removePlaceItem(placeItem: PlaceItem) {
@@ -182,39 +172,22 @@ class MainViewModel(
             viewModelScope.launch {
                 delete(placeItem)
                 if (placeItem.isChecked)
-                onUpdated()
+                    //onUpdated()
+                    onChangeUiState(UiState(GetLastItem = true))
+
             }
     }
 
-    private val _isEnabled = MutableLiveData<Boolean> ()
-    val isEnabled: MutableLiveData<Boolean>
-        get() = _isEnabled
+    private val _autoLocation: MutableStateFlow<PlaceItem?> = MutableStateFlow(null)
+    val autoLocation = _autoLocation.asStateFlow()
 
-    fun onInvalid() {
-        _isEnabled.value = true
+    fun setAutoLocation(placeItem: PlaceItem?) {
+        _autoLocation.value = placeItem
     }
 
-    private fun onInvalidComplete() {
-        _isEnabled.value = false
-    }
-
-
-    private val _goToLocationSettings = MutableLiveData<Boolean> ()
-    val goToLocationSettings: MutableLiveData<Boolean>
-        get() = _goToLocationSettings
-
-    private fun onGoToLocationSetting() {
-        _goToLocationSettings.value = true
-    }
-
-    fun onGoComplete() {
-        _isEnabled.value = false
-    }
-
-
-    fun addAutoPlaceItem(placeItem: PlaceItem, context: Context) {
+    fun addAutoPlaceItem(placeItem: PlaceItem) {
         val isAutoLocation = placeItem.isAutoLocation
-        if (isAutoLocation and (_isEnabled.value != true)) {
+        if (isAutoLocation) {
             addPlaceItem(placeItem)
         }
     }
@@ -226,40 +199,25 @@ class MainViewModel(
                 autoLocation.await()?.let {
                     delete(it)
                     if (it.isChecked)
-                    onUpdated()
+                        //onUpdated()
+                        onChangeUiState(UiState(GetLastItem = true))
+
                 }
             }
         }
-    }
-
-
-    fun showLocationIsDisabledAlert(context: Context) {
-        val alertDialog = AlertDialog.Builder(context)
-
-        alertDialog.apply {
-            setTitle("Enable Location Providers")
-            setMessage("The auto-location feature relies on at least one location provider")
-            setCancelable(false)
-            setPositiveButton("ENABLE PROVIDERS") { _, _ ->
-                onGoToLocationSetting()
-                onInvalidComplete()
-            }
-            setNegativeButton("STOP AUTO-LOCATION") { _, _ -> onInvalidComplete() }
-
-        }.create().show()
     }
 
     //-------
     // Data
     //-------
 
-    fun getLastPlace(): LiveData<PlaceItem?> = placeRepository.getLastPlace()
+    fun getLastPlace() = placeRepository.getLastPlace()
+
+    suspend fun uncheckAllExcept(placeId: Long, isChecked: Boolean) = placeRepository.uncheckAllExcept(placeId, isChecked)
 
     suspend fun insert(placeItem: PlaceItem) = placeRepository.insert(placeItem)
 
-    suspend fun  getPlaceItem(id: Long) = placeRepository.getPlaceItem(id)
-
-    suspend fun  getPlaces() = placeRepository.places()
+    suspend fun getPlaceItem(id: Long) = placeRepository.getPlaceItem(id)
 
     suspend fun exists(locality: String) = placeRepository.exists(locality)
 
@@ -267,9 +225,9 @@ class MainViewModel(
 
     suspend fun getAutoLocation(isAutoLocation: Boolean) = placeRepository.getAutoLocation(isAutoLocation)
 
+    fun getCheckedItem(isChecked: Boolean) = placeRepository.getCheckedItem(isChecked)
+
     suspend fun delete(placeItem: PlaceItem) = placeRepository.delete(placeItem)
-
-
 
 
     //------------------
@@ -279,12 +237,12 @@ class MainViewModel(
     class Factory(
         private val weatherRepository: WeatherRepository,
         private val placeRepository: PlaceRepository,
+        private val preferencesManager: PreferencesManager,
         private val application: Application
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return MainViewModel(weatherRepository, placeRepository, application) as T
+            return MainViewModel(weatherRepository, placeRepository, preferencesManager, application) as T
         }
     }
-
-
 }
+

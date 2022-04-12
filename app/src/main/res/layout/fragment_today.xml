@@ -19,17 +19,36 @@
     tools:context=".current_weather.TodayFragment"
     android:background="@drawable/gradient">
 
+    <ImageView
+        android:id="@+id/today_status"
+        android:layout_width="@dimen/_100sdp"
+        android:layout_height="@dimen/_100sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@drawable/loading_animation"
+        tools:visibility="gone"
+        />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/today_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="today_weather_img,
+        temperature,textView4,humidity,textView6,wind"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/today_weather_img"
-        android:layout_width="@dimen/_190sdp"
-        android:layout_height="@dimen/_190sdp"
+        android:layout_width="@dimen/_250sdp"
+        android:layout_height="@dimen/_250sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/backgrounds/scenic"
         imageUrl="@{String.format(@string/open_weather_img, todayViewModelBind.currentImage)}"
-        />
+        android:adjustViewBounds="true"/>
 
     <TextView
         android:id="@+id/temperature"

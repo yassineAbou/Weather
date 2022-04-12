@@ -14,6 +14,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.example.weather.MainViewModel
 import com.example.weather.R
+import com.example.weather.UiState
 import com.google.android.gms.maps.model.LatLng
 
 
@@ -30,15 +31,16 @@ class NewPlaceDialogFragment : DialogFragment() {
             val cityValue = dialogView.findViewById<EditText>(R.id.new_place)
 
 
-
             builder.setView(dialogView)
                 // Add action buttons
                 .setPositiveButton("Add",
                     DialogInterface.OnClickListener { dialog, id ->
                         mainViewModel.getCityLatitude(requireContext(), cityValue.text.toString())
+                        mainViewModel.onChangeUiState(UiState(NavigateToNewLocationDialog = false))
                     })
                 .setNegativeButton("Cancel",
                     DialogInterface.OnClickListener { dialog, id ->
+                        mainViewModel.onChangeUiState(UiState(NavigateToNewLocationDialog = false))
                         getDialog()?.cancel()
                     })
             builder.create()
