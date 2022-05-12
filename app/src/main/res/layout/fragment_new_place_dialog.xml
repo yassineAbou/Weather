@@ -9,7 +9,7 @@
     <TextView
         android:id="@+id/titile"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="@dimen/_56sdp"
         android:scaleType="center"
         android:text="Add new city"
         android:textSize="@dimen/_30ssp"

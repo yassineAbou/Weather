@@ -41,6 +41,7 @@
         android:layout_marginStart="@dimen/_11sdp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:buttonTint="@color/teal_700"
         app:layout_constraintBottom_toBottomOf="parent"
         android:checked="@{placeItem.isChecked}"
         android:onClick="@{() -> clickListenerBind2.onClick2(placeItem)}"

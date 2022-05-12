@@ -39,8 +39,9 @@
 
     <ImageView
         android:id="@+id/today_weather_img"
-        android:layout_width="@dimen/_250sdp"
+        android:layout_width="0dp"
         android:layout_height="@dimen/_250sdp"
+        app:layout_constraintWidth_percent="0.4"
         android:layout_marginStart="@dimen/_77sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,12 +54,12 @@
         android:id="@+id/temperature"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_100sdp"
         tools:text="17°"
         android:text="@{todayViewModelBind.temperature}"
         android:textColor="@color/white"
         android:textSize="@dimen/_58ssp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/today_weather_img"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -69,9 +70,10 @@
         android:text="Humidity"
         android:textColor="@color/white"
         android:textSize="@dimen/_17ssp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/humidity"
+        app:layout_constraintStart_toEndOf="@id/today_weather_img"
         app:layout_constraintTop_toBottomOf="@+id/temperature"
-        android:layout_marginStart="@dimen/_320sdp"/>
+        />
 
     <TextView
         android:id="@+id/humidity"
@@ -82,8 +84,8 @@
         android:textColor="@color/white"
         android:textSize="@dimen/_17ssp"
         app:layout_constraintTop_toBottomOf="@+id/temperature"
-        app:layout_constraintStart_toEndOf="@id/textView4"
-        android:layout_marginStart="@dimen/_65sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/today_weather_img"
         />
 
     <TextView
@@ -95,8 +97,8 @@
         android:textSize="@dimen/_17ssp"
         app:layout_constraintBaseline_toBaselineOf="@+id/wind"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="@dimen/_320sdp"/>
+        app:layout_constraintEnd_toStartOf="@id/wind"
+        app:layout_constraintStart_toEndOf="@id/today_weather_img"/>
 
     <TextView
         android:id="@+id/wind"
@@ -106,8 +108,9 @@
         tools:text="1.31m/s"
         android:textColor="@color/white"
         android:textSize="@dimen/_17ssp"
-        app:layout_constraintStart_toEndOf="@id/textView6"
-        android:layout_marginStart="@dimen/_65sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/today_weather_img"
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

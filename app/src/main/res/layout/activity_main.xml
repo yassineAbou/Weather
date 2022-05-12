@@ -25,9 +25,11 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewpager2"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_450sdp"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.9"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        >
 
     </androidx.viewpager2.widget.ViewPager2>
 
@@ -37,8 +39,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="@dimen/_43sdp"
+        app:layout_constraintTop_toBottomOf="@+id/viewpager2"
         app:dotsColor="@color/white"
         app:dotsStrokeColor="@color/white"
         app:dotsCornerRadius="8dp"

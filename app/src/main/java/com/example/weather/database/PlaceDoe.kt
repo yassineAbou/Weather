@@ -24,8 +24,6 @@ interface PlaceDoe {
     @Query("SELECT * FROM PLACE_ITEM_TABLE WHERE id=:id ")
     suspend fun getPlaceItem(id: Long): PlaceItem?
 
-
-
     @Query("SELECT * FROM PLACE_ITEM_TABLE ORDER BY id DESC LIMIT 1")
     fun getLastPlace(): Flow<PlaceItem?>
 
