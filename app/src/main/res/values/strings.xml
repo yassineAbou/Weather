@@ -18,5 +18,17 @@
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="add">add</string>
+    <string name="daily_weather">daily weather</string>
+    <string name="add_new_location">Add Location</string>
+    <string name="location">Location</string>
+    <string name="nextHourWeatherImg">next hour weather img</string>
+    <string name="nextDayWeatherImg">nextDayWeatherImg</string>
+    <string name="connection_status">connectionStatus</string>
+    <string name="todayWeatherImg">today weather img</string>
+    <string name="humidity">Humidity</string>
+    <string name="wind">Wind</string>
+    <string name="hourlyWeatherImg">hourlyWeatherImg</string>
+    <string name="remove">remove</string>
+    <string name="loading">LOADING</string>
 
 </resources>

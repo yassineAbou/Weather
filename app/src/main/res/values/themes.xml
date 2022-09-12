@@ -14,5 +14,6 @@
         <!-- Customize your theme here. -->
         <item name="android:fontFamily">@font/roboto_light</item>
         <item name="fontFamily">@font/roboto_light</item>
+        <item name="android:windowBackground">@drawable/gradient</item>
     </style>
 </resources>

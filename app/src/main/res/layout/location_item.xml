@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+   android:background="@color/white">
+
+    <data>
+
+        <variable
+            name="location"
+            type="com.example.weather.data.model.Location"/>
+
+        <variable
+            name="locationActions"
+            type="com.example.weather.ui.list_locations.LocationActions" />
+
+
+    </data>
+
+
+
+<androidx.constraintlayout.widget.ConstraintLayout
+
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/_50sdp"
+    android:background="@{location.selected ? @color/white : @color/gray300}"
+    android:layout_marginBottom="@dimen/_8sdp"
+    android:layout_marginStart="@dimen/_11sdp"
+    android:layout_marginEnd="@dimen/_11sdp"
+    android:onClick="@{() -> locationActions.selectLocation(location)}"
+    >
+
+
+
+    <RadioButton
+        android:id="@+id/isSelected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_11sdp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:buttonTint="@color/orange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:checked="@{location.selected}"
+        android:onClick="@{() -> locationActions.selectLocation(location)}"
+        />
+
+    <TextView
+        android:id="@+id/locality"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        locality="@{location}"
+        tools:text="Agadir,MA"
+        android:textColor="@color/black"
+        android:textSize="@dimen/_17ssp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/isSelected"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <ImageButton
+        android:id="@+id/deleteLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_11sdp"
+        android:background="@{location.selected ? @color/white : @color/gray300}"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:src="@drawable/ic_baseline_close_24"
+        Icon="@{location}"
+        android:onClick="@{() -> locationActions.deleteLocation(location)}"
+        tools:ignore="SpeakableTextPresentCheck"
+        android:contentDescription="@string/remove"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+
+    <data>
+
+        <variable
+            name="hourlyForecast"
+            type="com.example.weather.network.Hourly"/>
+    </data>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:background="@drawable/gradient">
+
+    <TextView
+        android:id="@+id/hour"
+        hour="@{hourlyForecast}"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_15sdp"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_17ssp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/_10sdp"
+        tools:text="13:00" />
+
+    <ImageView
+        android:id="@+id/image_hourly_forecast"
+        image_hourly_forecast="@{hourlyForecast}"
+        android:layout_width="@dimen/_50sdp"
+        android:layout_height="@dimen/_50sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/border_hourly_forecast"
+        tools:srcCompat="@tools:sample/backgrounds/scenic"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/hourlyWeatherImg"/>
+
+    <TextView
+        android:id="@+id/hourly_temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_15sdp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/hour"
+        app:layout_constraintEnd_toEndOf="parent"
+        hourly_temperature="@{hourlyForecast}"
+        tools:text="17°"
+        android:textSize="@dimen/_17ssp"
+        android:textColor="@color/white"
+        />
+
+    <View
+        android:id="@+id/border_hourly_forecast"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_1sdp"
+        android:background="@color/gray100"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        app:layout_constraintTop_toBottomOf="@+id/hourly_temperature"
+        app:layout_constraintHorizontal_bias="0.079"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
