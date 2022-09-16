@@ -4,6 +4,7 @@ package com.example.weather.ui.list_locations
 
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
@@ -25,36 +26,33 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.weather.ApiStatus
 import com.example.weather.ListLocationsEvent
 import com.example.weather.MainViewModel
 import com.example.weather.R
-import com.example.weather.ApiStatus
 import com.example.weather.data.model.Location
 import com.example.weather.databinding.FragmentListLocationsBinding
-import com.example.weather.network.ConnectionState
+import com.example.weather.network.ConnectivityObserver
 import com.example.weather.ui.add_location.AddLocationDialogFragment
-import com.example.weather.util.hasLocationPermissions
-import com.example.weather.util.isLocationEnabled
-import com.example.weather.util.viewBinding
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
+import com.example.weather.util.*
+import com.example.weather.util.showPermanentlyDeniedDialog
+import com.example.weather.util.showRationaleDialog
+import com.fondesa.kpermissions.*
+import com.fondesa.kpermissions.coroutines.flow
+import com.fondesa.kpermissions.extension.permissionsBuilder
+import com.google.android.gms.location.*
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import pub.devrel.easypermissions.AfterPermissionGranted
-import pub.devrel.easypermissions.AppSettingsDialog
-import pub.devrel.easypermissions.EasyPermissions
+
 
 
 private const val TAG = "LocationFragment"
 
 @AndroidEntryPoint
-class ListLocationsFragment : Fragment(R.layout.fragment_list_locations), EasyPermissions.PermissionCallbacks{
+class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
 
     private val fragmentListLocationsBinding  by viewBinding(FragmentListLocationsBinding::bind)
     private val mainViewModel: MainViewModel by activityViewModels()
@@ -62,11 +60,27 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations), EasyPe
         LocationServices.getFusedLocationProviderClient(requireContext())
     }
 
+    val request by lazy {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            permissionsBuilder(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ).build()
+        } else {
+            permissionsBuilder(
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ).build()
+        }
+    }
+
+
     private val locationCallback : LocationCallback = object: LocationCallback() {
         override fun onLocationResult(p0: LocationResult) {
             super.onLocationResult(p0)
             val location = p0.lastLocation
-            mainViewModel.getGeoCoding(location.latitude, location.longitude)
+            location?.let { mainViewModel.getGeoCoding(it.latitude, it.longitude) }
         }
     }
 
@@ -108,7 +122,6 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations), EasyPe
                             hasErrorCoordinates -> showErrorCoordinatesDialog()
                             isEnableProvidersClicked -> navigateToLocationSettings()
                         }
-                        Log.e(TAG, "isEnableProvidersClicked: $isEnableProvidersClicked")
                     }
                  }
             }
@@ -133,8 +146,8 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations), EasyPe
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mainViewModel.connectionState.collectLatest { connectionState ->
-                    if(connectionState == ConnectionState.Fetched)  {
-                        if (mainViewModel.isChecked.first()) {
+                    if(connectionState == ConnectivityObserver.Status.Available)  {
+                        if (mainViewModel.isChecked.first() && request.checkStatus().allGranted()) {
                             addAutoLocation()
                         }
                     }
@@ -157,7 +170,29 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations), EasyPe
             }
         }
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                request.flow().collect { result ->
+                    when {
+                        result.anyPermanentlyDenied() -> {
+                            mainViewModel.onIsCheckedChange(false)
+                            requireContext().showPermanentlyDeniedDialog()
+                        }
+                        result.anyShouldShowRationale() -> {
+                            requireContext().showRationaleDialog(
+                                request = request,
+                                onIsCheckedChange = { mainViewModel.onIsCheckedChange(false) }
+                            )
+                        }
+                        result.allGranted() -> {
+                             requireContext().showGrantedToast()
+                             addAutoLocation()
+                        }
 
+                    }
+                }
+            }
+        }
 
 
 
@@ -192,8 +227,9 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations), EasyPe
                             thumbDrawable.setTint(ContextCompat.getColor(requireContext(),R.color.orange))
                             trackDrawable.setTint(ContextCompat.getColor(requireContext(),R.color.orange100))
 
+
                             requestPermission()
-                            if (hasLocationPermissions(requireContext())) {
+                            if (request.checkStatus().allGranted()) {
                                 addAutoLocation()
                             }
 
@@ -202,7 +238,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations), EasyPe
                             thumbDrawable.setTint(ContextCompat.getColor(requireContext(),R.color.gray200))
                             trackDrawable.setTint(ContextCompat.getColor(requireContext(), R.color.gray300))
 
-                            if (hasLocationPermissions(requireContext())) {
+                            if (request.checkStatus().allGranted()) {
                                 mainViewModel.getAutoLocation {
                                     it?.let { mainViewModel.deleteLocation(it) }
                                 }
@@ -214,7 +250,6 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations), EasyPe
         }
     }
 
-    @AfterPermissionGranted(REQUEST_CODE_LOCATION_PERMISSION)
    private fun addAutoLocation() {
        mainViewModel.getAutoLocation { autoLocation ->
            if (autoLocation == null) {
@@ -232,6 +267,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations), EasyPe
        }
    }
 
+    @SuppressLint("MissingPermission")
     private fun getCurrentLocation() {
        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
            if (location != null) {
@@ -244,60 +280,42 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations), EasyPe
        }
     }
 
+    @SuppressLint("MissingPermission")
     private fun requestLocation() {
         val locationRequest = LocationRequest.create().apply {
             interval = 0
             fastestInterval = 0
             numUpdates = 1
-            priority = PRIORITY_HIGH_ACCURACY
+            priority = Priority.PRIORITY_HIGH_ACCURACY
             setExpirationDuration(15000)
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
     private fun showLocationIsDisabledAlert() {
-       activity?.let {
-           val builder = AlertDialog.Builder(activity)
-           builder.apply {
-               setTitle("Enable Location Providers")
-               setMessage("The auto-location feature relies on at least one location provider")
-               setCancelable(false)
-               setPositiveButton("ENABLE PROVIDERS") { _, _ ->
-                   mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasLocationServiceError = false))
-                   mainViewModel.changeListLocationsEvent(ListLocationsEvent(isEnableProvidersClicked = true))
-               }
-               setNegativeButton("STOP AUTO-LOCATION") { _, _ ->
-                   mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasLocationServiceError = false))
-                   mainViewModel.onIsCheckedChange(false)
-
-               }
-         }.create().show()
-     }
+        requireContext().showLocationIsDisabledAlert(
+            enableLocationProviders = {
+                mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasLocationServiceError = false))
+                mainViewModel.changeListLocationsEvent(ListLocationsEvent(isEnableProvidersClicked = true))
+            },
+            stopAutoLocation = {
+                mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasLocationServiceError = false))
+                mainViewModel.onIsCheckedChange(false)
+            }
+        )
    }
 
    private fun showErrorCoordinatesDialog() {
+       requireContext().showErrorCoordinatesDialog(
+          tryAgain = {
+              mainViewModel.changeListLocationsEvent(ListLocationsEvent(isAddLocationPressed = true))
+              mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasErrorCoordinates = false))
+          },
+          close = {
+              mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasErrorCoordinates = false))
+          }
+       )
 
-       activity?.let {
-          val builder = AlertDialog.Builder(it)
-             builder.apply {
-                setTitle("Error")
-                setMessage("Make sure you write the location correctly and internet connexion is not missing")
-                setCancelable(false)
-                setPositiveButton(
-               "TRY AGAIN"
-                ) { _, _ ->
-                     mainViewModel.changeListLocationsEvent(ListLocationsEvent(isAddLocationPressed = true))
-                     mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasErrorCoordinates = false))
-                }
-                setNegativeButton(
-                "CLOSE"
-                ) { _, _ ->
-                     mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasErrorCoordinates = false))
-                }
-
-             }
-            builder.create().show()
-      }
    }
 
 
@@ -306,51 +324,14 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations), EasyPe
       mainViewModel.changeListLocationsEvent(ListLocationsEvent(isEnableProvidersClicked = false))
    }
 
-   override fun onRequestPermissionsResult(
-      requestCode: Int,
-      permissions: Array<out String>,
-       grantResults: IntArray
-   ) {
-      super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-      EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
-   }
-
-   override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
-      mainViewModel.onIsCheckedChange(false)
-       if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-           AppSettingsDialog.Builder(this).build().show()
-       }
-   }
-
-   override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
-   }
-
    private fun requestPermission() {
-      if (hasLocationPermissions(requireContext())) {
+     if (request.checkStatus().allGranted()) {
            return
       }
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-          EasyPermissions.requestPermissions(
-     this,
-  "You need to accept location permissions to use auto location.",
-          REQUEST_CODE_LOCATION_PERMISSION,
-          Manifest.permission.ACCESS_FINE_LOCATION,
-          Manifest.permission.ACCESS_COARSE_LOCATION
-         )
-      } else {
-          EasyPermissions.requestPermissions(
-     this,
-  "You need to accept location permissions to use auto location.",
-          REQUEST_CODE_LOCATION_PERMISSION,
-          Manifest.permission.ACCESS_FINE_LOCATION,
-          Manifest.permission.ACCESS_COARSE_LOCATION,
-          Manifest.permission.ACCESS_BACKGROUND_LOCATION
-          )
+      else {
+          request.send()
       }
   }
 
-
-
 }
 
-private const val REQUEST_CODE_LOCATION_PERMISSION = 0

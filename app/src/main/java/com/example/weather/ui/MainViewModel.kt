@@ -11,10 +11,7 @@ import com.example.weather.data.repository.GeoCodingRepository
 import com.example.weather.data.repository.LocationRepository
 import com.example.weather.data.repository.SwitchPreferencesRepository
 import com.example.weather.data.repository.WeatherRepository
-import com.example.weather.network.ConnectionState
-import com.example.weather.network.NetworkStatusTracker
-import com.example.weather.network.WeatherResult
-import com.example.weather.network.map
+import com.example.weather.network.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +36,7 @@ data class ListLocationsEvent(
 class MainViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
     private val locationRepository: LocationRepository,
-    private val networkStatusTracker: NetworkStatusTracker,
+    private val connectivityObserver: NetworkConnectivityObserver,
     private val switchPreferencesRepository: SwitchPreferencesRepository,
     private val geoCodingRepository: GeoCodingRepository
 ) : ViewModel() {
@@ -67,12 +64,17 @@ class MainViewModel @Inject constructor(
     private val _locationName: MutableStateFlow<String?> = MutableStateFlow(null)
     val locationName = _locationName.asStateFlow()
 
+    val connectionState = connectivityObserver.observe()
+
+    /*
     val connectionState =
         networkStatusTracker.networkStatus
             .map(
                 onUnavailable = { ConnectionState.Error },
                 onAvailable = { ConnectionState.Fetched },
             )
+
+     */
 
     val isChecked = switchPreferencesRepository.isChecked
 
@@ -165,17 +167,17 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val geocoder = Geocoder(context)
-                val addresses: List<Address> =
-                    geocoder.getFromLocationName(location, 5)
-                val address = addresses.first()
-
-                val locality = "${location?.replaceFirstChar { it.uppercase() }}, ${address.countryCode}"
-                val latitude = address.latitude
-                val longitude = address.longitude
-                Log.e(TAG, "latitude = $latitude longitude = $longitude", )
-                addLocation(
-                    Location(locality, latitude, longitude)
-                )
+                val addresses: List<Address>? =
+                    geocoder.getFromLocationName(location.toString(), 5)
+                addresses?.first()?.let {
+                    val locality = "${location?.replaceFirstChar { it.uppercase() }}, ${it.countryCode}"
+                    val latitude = it.latitude
+                    val longitude = it.longitude
+                    Log.e(TAG, "latitude = $latitude longitude = $longitude", )
+                    addLocation(
+                        Location(locality, latitude, longitude)
+                    )
+                }
 
             } catch (e: Exception) {
                 changeListLocationsEvent(ListLocationsEvent(hasErrorCoordinates = true))

@@ -10,7 +10,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.weather.MainViewModel
 import com.example.weather.ApiStatus
 import com.example.weather.databinding.ActivityMainBinding
-import com.example.weather.network.ConnectionState
+import com.example.weather.network.ConnectivityObserver
 import com.example.weather.util.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mainViewModel.connectionState.collectLatest { connectionState ->
-                        if(connectionState == ConnectionState.Fetched)  {
+                        if(connectionState == ConnectivityObserver.Status.Available)  {
                             if (mainViewModel.weatherApiStatus.value == ApiStatus.ERROR) {
                                 mainViewModel.changeWeatherApiStatus(null)
                                 Log.e(TAG, "onCreate: TTTTTTTTT")

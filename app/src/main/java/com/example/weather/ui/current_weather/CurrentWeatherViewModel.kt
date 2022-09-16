@@ -1,9 +1,8 @@
 package com.example.weather.ui.current_weather
 
-import android.util.Log
+
 import androidx.lifecycle.*
 import com.example.weather.network.Current
-import com.example.weather.util.map
 import kotlinx.coroutines.flow.*
 
 
