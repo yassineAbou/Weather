@@ -6,8 +6,8 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.example.weather.ListLocationsEvent
-import com.example.weather.MainViewModel
+import com.example.weather.ui.ListLocationsEvent
+import com.example.weather.ui.MainViewModel
 import com.example.weather.R
 
 
@@ -19,7 +19,7 @@ class AddLocationDialogFragment : DialogFragment() {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
 
-            val inflater = requireActivity().layoutInflater;
+            val inflater = requireActivity().layoutInflater
             val dialogView = inflater.inflate(R.layout.fragment_add_location_dialog, null)
             val editText = dialogView.findViewById<EditText>(R.id.editText)
 
@@ -27,12 +27,12 @@ class AddLocationDialogFragment : DialogFragment() {
             builder
                 .setView(dialogView)
                 .setPositiveButton(
-                "Add"
+                R.string.add
                 ) { _, _ ->
                     mainViewModel.getCoordinatesByLocation(requireContext(), editText.text.toString())
                 }
                 .setNegativeButton(
-                "Cancel"
+                R.string.cancel
                 ) { _, _ ->
                     dialog?.cancel()
                 }

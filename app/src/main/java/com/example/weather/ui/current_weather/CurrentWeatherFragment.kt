@@ -2,24 +2,22 @@ package com.example.weather.ui.current_weather
 
 
 import android.os.Bundle
-import android.view.*
-import android.widget.Toast
+import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.weather.ApiStatus
-import com.example.weather.MainViewModel
+import com.example.weather.ui.ApiStatus
+import com.example.weather.ui.MainViewModel
 import com.example.weather.R
 import com.example.weather.databinding.FragmentCurrentWeatherBinding
 import com.example.weather.util.bindImageCurrentWeather
 import com.example.weather.util.viewBinding
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
+
 class CurrentWeatherFragment : androidx.fragment.app.Fragment(R.layout.fragment_current_weather) {
 
 
@@ -44,10 +42,15 @@ class CurrentWeatherFragment : androidx.fragment.app.Fragment(R.layout.fragment_
                             ApiStatus.DONE -> {
                                 showCurrentWeatherGroup()
                             }
-                            else -> {
+                            ApiStatus.ERROR -> {
                                 currentWeatherViewModel.displayCurrentWeather(null)
                                 hideCurrentWeatherGroup()
                                 fragmentCurrentWeatherBinding.connectionStatus.setImageResource(R.drawable.ic_connection_error)
+                            }
+                            ApiStatus.IDLE -> {
+                                currentWeatherViewModel.displayCurrentWeather(null)
+                                hideCurrentWeatherGroup()
+                                fragmentCurrentWeatherBinding.connectionStatus.setImageResource(R.drawable.ic_baseline_search_24)
                             }
                         }
                     }
@@ -104,5 +107,3 @@ class CurrentWeatherFragment : androidx.fragment.app.Fragment(R.layout.fragment_
 
 
 }
-
-private const val TAG = "CurrentWeatherFragment"

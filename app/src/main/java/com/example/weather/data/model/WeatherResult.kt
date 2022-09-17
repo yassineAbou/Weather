@@ -1,4 +1,4 @@
-package com.example.weather.network
+package com.example.weather.data.model
 
 data class WeatherResult(
     val current: Current,

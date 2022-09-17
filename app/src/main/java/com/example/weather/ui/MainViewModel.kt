@@ -1,17 +1,16 @@
-package com.example.weather
+package com.example.weather.ui
 
 import android.content.Context
 import android.location.Address
 import android.location.Geocoder
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weather.data.model.Location
+import com.example.weather.data.model.WeatherResult
 import com.example.weather.data.repository.GeoCodingRepository
 import com.example.weather.data.repository.LocationRepository
 import com.example.weather.data.repository.SwitchPreferencesRepository
 import com.example.weather.data.repository.WeatherRepository
-import com.example.weather.network.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +20,6 @@ import javax.inject.Inject
 
 
 enum class ApiStatus { LOADING, ERROR, DONE, IDLE }
-
-private const val TAG = "MainViewModel"
 
 
 data class ListLocationsEvent(
@@ -36,16 +33,12 @@ data class ListLocationsEvent(
 class MainViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
     private val locationRepository: LocationRepository,
-    private val connectivityObserver: NetworkConnectivityObserver,
     private val switchPreferencesRepository: SwitchPreferencesRepository,
     private val geoCodingRepository: GeoCodingRepository
 ) : ViewModel() {
 
-
-
     private val _listLocationsEvent = MutableStateFlow(ListLocationsEvent())
     val listLocationsEvent: StateFlow<ListLocationsEvent> = _listLocationsEvent.asStateFlow()
-
 
     private val _weatherApiStatus: MutableStateFlow<ApiStatus?> = MutableStateFlow(null)
     val weatherApiStatus = _weatherApiStatus.asStateFlow()
@@ -63,18 +56,6 @@ class MainViewModel @Inject constructor(
 
     private val _locationName: MutableStateFlow<String?> = MutableStateFlow(null)
     val locationName = _locationName.asStateFlow()
-
-    val connectionState = connectivityObserver.observe()
-
-    /*
-    val connectionState =
-        networkStatusTracker.networkStatus
-            .map(
-                onUnavailable = { ConnectionState.Error },
-                onAvailable = { ConnectionState.Fetched },
-            )
-
-     */
 
     val isChecked = switchPreferencesRepository.isChecked
 
@@ -127,7 +108,7 @@ class MainViewModel @Inject constructor(
     }
 
 
-    fun saveLocationGeoCoder(location: Location) {
+    private fun saveLocationGeoCoder(location: Location) {
         _locationGeoCoder.value = location
     }
 
@@ -167,13 +148,12 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val geocoder = Geocoder(context)
-                val addresses: List<Address>? =
+                val listAddresses: List<Address>? =
                     geocoder.getFromLocationName(location.toString(), 5)
-                addresses?.first()?.let {
-                    val locality = "${location?.replaceFirstChar { it.uppercase() }}, ${it.countryCode}"
-                    val latitude = it.latitude
-                    val longitude = it.longitude
-                    Log.e(TAG, "latitude = $latitude longitude = $longitude", )
+                listAddresses?.first()?.let { address ->
+                    val locality = "${location?.replaceFirstChar { it.uppercase() }}, ${address.countryCode}"
+                    val latitude = address.latitude
+                    val longitude = address.longitude
                     addLocation(
                         Location(locality, latitude, longitude)
                     )

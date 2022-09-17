@@ -7,7 +7,7 @@
 
         <variable
             name="dailyForecast"
-            type="com.example.weather.network.Daily"/>
+            type="com.example.weather.data.model.Daily"/>
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout

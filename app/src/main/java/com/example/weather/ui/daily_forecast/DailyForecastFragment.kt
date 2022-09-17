@@ -1,8 +1,7 @@
 package com.example.weather.ui.daily_forecast
 
 import android.os.Bundle
-import android.view.*
-import android.widget.Toast
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -11,17 +10,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.ApiStatus
-import com.example.weather.MainViewModel
+import com.example.weather.ui.ApiStatus
+import com.example.weather.ui.MainViewModel
 import com.example.weather.R
-
 import com.example.weather.util.viewBinding
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
 class DailyForecastFragment : Fragment(R.layout.fragment_daily_forecast) {
 
     private val fragmentDailyForecastBinding by viewBinding(com.example.weather.databinding.FragmentDailyForecastBinding::bind)
@@ -53,10 +48,15 @@ class DailyForecastFragment : Fragment(R.layout.fragment_daily_forecast) {
                             ApiStatus.DONE -> {
                                 showListDailyForecast()
                             }
-                            else -> {
+                            ApiStatus.ERROR -> {
                                 hideListDailyForecast()
                                 dailyForecastViewModel.displayDailyForecast(null)
                                 fragmentDailyForecastBinding.connectionStatus.setImageResource(R.drawable.ic_connection_error)
+                            }
+                            ApiStatus.IDLE -> {
+                                hideListDailyForecast()
+                                dailyForecastViewModel.displayDailyForecast(null)
+                                fragmentDailyForecastBinding.connectionStatus.setImageResource(R.drawable.ic_baseline_search_24)
                             }
                         }
                     }

@@ -9,7 +9,7 @@
 
         <variable
             name="hourlyForecast"
-            type="com.example.weather.network.Hourly"/>
+            type="com.example.weather.data.model.Hourly"/>
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout

@@ -1,4 +1,4 @@
-package com.example.weather.network
+package com.example.weather.data.model
 
 data class GeoCodingItem(
     val country: String,

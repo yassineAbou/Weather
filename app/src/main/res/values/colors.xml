@@ -14,6 +14,6 @@
     <color name="gray200">#E4E4E4</color>
     <color name="gray300">#a2b9c7</color>
     <color name="normal">#89000000</color>
-    <color name="orange">#FFA500</color>#FFFFE0
+    <color name="orange">#FFA500</color>
     <color name="orange100">#FBBF77</color>
 </resources>

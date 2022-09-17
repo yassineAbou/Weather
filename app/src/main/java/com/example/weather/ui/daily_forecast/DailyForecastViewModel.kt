@@ -1,7 +1,7 @@
 package com.example.weather.ui.daily_forecast
 
 import androidx.lifecycle.ViewModel
-import com.example.weather.network.Daily
+import com.example.weather.data.model.Daily
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 

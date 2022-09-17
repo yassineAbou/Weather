@@ -2,16 +2,14 @@ package com.example.weather.ui
 
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import androidx.viewpager2.widget.ViewPager2
-import com.example.weather.MainViewModel
-import com.example.weather.ApiStatus
+import com.example.weather.R
 import com.example.weather.databinding.ActivityMainBinding
-import com.example.weather.network.ConnectivityObserver
 import com.example.weather.util.viewBinding
+import com.rommansabbir.networkx.extension.isInternetConnectedFlow
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -20,14 +18,18 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private val activityMainBinding by viewBinding(ActivityMainBinding::inflate)
-
     private val mainViewModel: MainViewModel by viewModels()
+    private val pagerAdapter by lazy { FragmentSlidePagerAdapter(this) }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(activityMainBinding.root)
+        activityMainBinding.viewpager2.adapter = pagerAdapter
+        activityMainBinding.wormDotsIndicator.attachTo(activityMainBinding.viewpager2)
 
+        setSupportActionBar(activityMainBinding.toolbar)
+        setupViewpager2()
 
 
             lifecycleScope.launch {
@@ -46,32 +48,22 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.connectionState.collectLatest { connectionState ->
-                        if(connectionState == ConnectivityObserver.Status.Available)  {
+                isInternetConnectedFlow.collectLatest {
+                        if(it)  {
                             if (mainViewModel.weatherApiStatus.value == ApiStatus.ERROR) {
                                 mainViewModel.changeWeatherApiStatus(null)
-                                Log.e(TAG, "onCreate: TTTTTTTTT")
                             }
                         }
                 }
             }
         }
 
-
-
-
-
-        setSupportActionBar(activityMainBinding.toolbar)
-        setupViewpager2()
-
-
     }
 
     private fun setupViewpager2() {
-        val pagerAdapter by lazy { FragmentSlidePagerAdapter(this) }
         activityMainBinding.apply {
             viewpager2.adapter = pagerAdapter
-            wormDotsIndicator.setViewPager2(activityMainBinding.viewpager2)
+
 
             viewpager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
@@ -91,31 +83,29 @@ class MainActivity : AppCompatActivity() {
     private fun toolbarDailyForecast() {
         activityMainBinding.apply {
             toolbar.title = mainViewModel.locationName.value
-            toolbar.subtitle = "Next 8 days, unit:°C"
+            toolbar.subtitle = getString(R.string.toolbar_daily_forecast)
         }
     }
 
     private fun toolbarHourlyForecast() {
         activityMainBinding.apply {
             toolbar.title = mainViewModel.locationName.value
-            toolbar.subtitle = "Next 48 hours, unit:°C"
+            toolbar.subtitle = getString(R.string.toolbar_hourly_forecast)
         }
     }
 
     private fun toolbarCurrentWeather() {
         activityMainBinding.apply {
             toolbar.title = mainViewModel.locationName.value
-            toolbar.subtitle = "Today, unit:°C"
+            toolbar.subtitle = getString(R.string.toolbar_current_weather)
         }
     }
 
     private fun toolbarListLocations() {
         activityMainBinding.apply {
-            toolbar.title = "Auto location"
+            toolbar.title = getString(R.string.toolbar_list_locations)
             toolbar.subtitle = ""
         }
     }
 
 }
-
-private const val TAG = "MainActivity"

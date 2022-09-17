@@ -1,8 +1,7 @@
 package com.example.weather.ui.hourly_forecast
 
 import android.os.Bundle
-import android.view.*
-import android.widget.Toast
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -11,18 +10,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.ApiStatus
-import com.example.weather.MainViewModel
+import com.example.weather.ui.ApiStatus
+import com.example.weather.ui.MainViewModel
 import com.example.weather.R
 import com.example.weather.databinding.FragmentHourlyForecastBinding
-
 import com.example.weather.util.viewBinding
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
 class HourlyForecastFragment : Fragment(R.layout.fragment_hourly_forecast) {
 
     private val fragmentHourlyForecastBinding by viewBinding(FragmentHourlyForecastBinding::bind)
@@ -42,8 +37,6 @@ class HourlyForecastFragment : Fragment(R.layout.fragment_hourly_forecast) {
         }
 
 
-
-
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mainViewModel.weatherApiStatus.collectLatest {
@@ -56,10 +49,15 @@ class HourlyForecastFragment : Fragment(R.layout.fragment_hourly_forecast) {
                             ApiStatus.DONE -> {
                                 showListHourlyForecast()
                             }
-                            else -> {
+                            ApiStatus.ERROR -> {
                                 hideListHourlyForecast()
                                 hourlyForecastViewModel.displayHourlyForecast(null)
                                 fragmentHourlyForecastBinding.connectionStatus.setImageResource(R.drawable.ic_connection_error)
+                            }
+                            ApiStatus.IDLE -> {
+                                hideListHourlyForecast()
+                                hourlyForecastViewModel.displayHourlyForecast(null)
+                                fragmentHourlyForecastBinding.connectionStatus.setImageResource(R.drawable.ic_baseline_search_24)
                             }
                         }
                     }

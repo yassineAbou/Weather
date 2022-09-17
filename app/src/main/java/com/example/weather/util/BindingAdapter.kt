@@ -5,8 +5,8 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.example.weather.R
-import com.example.weather.network.Daily
-import com.example.weather.network.Hourly
+import com.example.weather.data.model.Daily
+import com.example.weather.data.model.Hourly
 import com.example.weather.data.model.Location
 
 //------------------------

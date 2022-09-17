@@ -60,18 +60,18 @@
 
     <ImageButton
         android:id="@+id/deleteLocation"
+        Icon="@{location}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/_11sdp"
         android:background="@{location.selected ? @color/white : @color/gray300}"
+        android:contentDescription="@string/remove"
+        android:onClick="@{() -> locationActions.deleteLocation(location)}"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:src="@drawable/ic_baseline_close_24"
-        Icon="@{location}"
-        android:onClick="@{() -> locationActions.deleteLocation(location)}"
-        tools:ignore="SpeakableTextPresentCheck"
-        android:contentDescription="@string/remove"/>
+        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck"
+        tools:src="@drawable/ic_baseline_close_24" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

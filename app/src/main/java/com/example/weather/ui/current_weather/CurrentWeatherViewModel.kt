@@ -2,7 +2,7 @@ package com.example.weather.ui.current_weather
 
 
 import androidx.lifecycle.*
-import com.example.weather.network.Current
+import com.example.weather.data.model.Current
 import kotlinx.coroutines.flow.*
 
 
@@ -18,4 +18,3 @@ class CurrentWeatherViewModel : ViewModel() {
 
 }
 
-private const val TAG = "CurrentWeatherViewModel"

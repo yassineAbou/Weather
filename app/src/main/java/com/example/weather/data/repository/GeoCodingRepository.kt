@@ -1,6 +1,7 @@
 package com.example.weather.data.repository
 
-import com.example.weather.network.*
+import com.example.weather.data.model.GeoCodingItem
+import com.example.weather.data.remote.GeoCodingApi
 import retrofit2.http.Query
 import javax.inject.Inject
 

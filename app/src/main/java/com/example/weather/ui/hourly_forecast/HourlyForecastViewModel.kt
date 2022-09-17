@@ -1,7 +1,7 @@
 package com.example.weather.ui.hourly_forecast
 
 import androidx.lifecycle.ViewModel
-import com.example.weather.network.Hourly
+import com.example.weather.data.model.Hourly
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 

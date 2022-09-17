@@ -5,13 +5,11 @@ package com.example.weather.ui.list_locations
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
@@ -26,13 +24,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.ApiStatus
-import com.example.weather.ListLocationsEvent
-import com.example.weather.MainViewModel
+import com.example.weather.ui.ApiStatus
+import com.example.weather.ui.ListLocationsEvent
+import com.example.weather.ui.MainViewModel
 import com.example.weather.R
 import com.example.weather.data.model.Location
 import com.example.weather.databinding.FragmentListLocationsBinding
-import com.example.weather.network.ConnectivityObserver
 import com.example.weather.ui.add_location.AddLocationDialogFragment
 import com.example.weather.util.*
 import com.example.weather.util.showPermanentlyDeniedDialog
@@ -41,15 +38,13 @@ import com.fondesa.kpermissions.*
 import com.fondesa.kpermissions.coroutines.flow
 import com.fondesa.kpermissions.extension.permissionsBuilder
 import com.google.android.gms.location.*
+import com.rommansabbir.networkx.extension.isInternetConnectedFlow
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
-
-private const val TAG = "LocationFragment"
 
 @AndroidEntryPoint
 class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
@@ -60,7 +55,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
         LocationServices.getFusedLocationProviderClient(requireContext())
     }
 
-    val request by lazy {
+    private val permissionRequest by lazy {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             permissionsBuilder(
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -135,7 +130,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
                         if (it == ApiStatus.ERROR) {
                             Toast.makeText(
                                 requireContext(),
-                                "Auto-location is not working properly, please make sure you connect to the internet ",
+                                R.string.auto_location_error,
                                 Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -145,9 +140,9 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.connectionState.collectLatest { connectionState ->
-                    if(connectionState == ConnectivityObserver.Status.Available)  {
-                        if (mainViewModel.isChecked.first() && request.checkStatus().allGranted()) {
+                isInternetConnectedFlow.collectLatest {
+                    if(it)  {
+                        if (mainViewModel.isChecked.first() && permissionRequest.checkStatus().allGranted()) {
                             addAutoLocation()
                         }
                     }
@@ -159,7 +154,6 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mainViewModel.listLocationsFlow.collectLatest {
-                    Log.e(TAG, "listLocationsFlow size is ${it.size}")
                     adapter.submitList(it)
                     fragmentListLocationsBinding.listLocations.scrollToPosition(0)
                     if (it.isEmpty()) {
@@ -172,7 +166,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                request.flow().collect { result ->
+                permissionRequest.flow().collect { result ->
                     when {
                         result.anyPermanentlyDenied() -> {
                             mainViewModel.onIsCheckedChange(false)
@@ -180,7 +174,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
                         }
                         result.anyShouldShowRationale() -> {
                             requireContext().showRationaleDialog(
-                                request = request,
+                                permissionRequest = permissionRequest,
                                 onIsCheckedChange = { mainViewModel.onIsCheckedChange(false) }
                             )
                         }
@@ -202,6 +196,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
         AddLocationDialogFragment().show(parentFragmentManager, "AddLocationDialogFragment")
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.auto_location_menu, menu)
@@ -210,7 +205,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
 
         switchCompat.apply {
 
-            setOnCheckedChangeListener { buttonView: CompoundButton?, isChecked : Boolean  ->
+            setOnCheckedChangeListener { _: CompoundButton?, isChecked : Boolean  ->
                 if (isChecked) {
                     mainViewModel.onIsCheckedChange(true)
                 } else {
@@ -229,7 +224,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
 
 
                             requestPermission()
-                            if (request.checkStatus().allGranted()) {
+                            if (permissionRequest.checkStatus().allGranted()) {
                                 addAutoLocation()
                             }
 
@@ -238,7 +233,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
                             thumbDrawable.setTint(ContextCompat.getColor(requireContext(),R.color.gray200))
                             trackDrawable.setTint(ContextCompat.getColor(requireContext(), R.color.gray300))
 
-                            if (request.checkStatus().allGranted()) {
+                            if (permissionRequest.checkStatus().allGranted()) {
                                 mainViewModel.getAutoLocation {
                                     it?.let { mainViewModel.deleteLocation(it) }
                                 }
@@ -325,11 +320,11 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
    }
 
    private fun requestPermission() {
-     if (request.checkStatus().allGranted()) {
+     if (permissionRequest.checkStatus().allGranted()) {
            return
       }
       else {
-          request.send()
+          permissionRequest.send()
       }
   }
 
