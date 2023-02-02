@@ -6,7 +6,6 @@ import com.rommansabbir.networkx.NetworkXProvider
 import com.rommansabbir.networkx.SmartConfig
 import dagger.hilt.android.HiltAndroidApp
 
-
 @HiltAndroidApp
 class WeatherApplication : Application() {
     override fun onCreate() {

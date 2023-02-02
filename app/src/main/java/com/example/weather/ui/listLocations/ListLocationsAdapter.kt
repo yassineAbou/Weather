@@ -1,4 +1,4 @@
-package com.example.weather.ui.list_locations
+package com.example.weather.ui.listLocations
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weather.data.model.Location
 import com.example.weather.databinding.LocationItemBinding
-
 
 class ListLocationsAdapter(private val locationActions: LocationActions) :
     ListAdapter<Location, ListLocationsAdapter.ViewHolder>(PlaceItemDiffCallback()) {
@@ -18,11 +17,11 @@ class ListLocationsAdapter(private val locationActions: LocationActions) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
         return ViewHolder.from(parent)
     }
 
-    class ViewHolder private constructor(private val locationItemBinding: LocationItemBinding) : RecyclerView.ViewHolder(locationItemBinding.root){
+    class ViewHolder private constructor(private val locationItemBinding: LocationItemBinding) :
+        RecyclerView.ViewHolder(locationItemBinding.root) {
 
         fun bind(
             location: Location,
@@ -32,9 +31,7 @@ class ListLocationsAdapter(private val locationActions: LocationActions) :
                 this.location = location
                 this.locationActions = locationActions
                 executePendingBindings()
-
             }
-
         }
 
         companion object {
@@ -45,10 +42,6 @@ class ListLocationsAdapter(private val locationActions: LocationActions) :
             }
         }
     }
-
-
-
-
 }
 
 class PlaceItemDiffCallback : DiffUtil.ItemCallback<Location>() {
@@ -63,12 +56,6 @@ class PlaceItemDiffCallback : DiffUtil.ItemCallback<Location>() {
 }
 
 interface LocationActions {
-    fun deleteLocation(location: Location)
-    fun selectLocation(location: Location)
+    fun delete(location: Location)
+    fun select(location: Location)
 }
-
-
-
-
-
-

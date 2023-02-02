@@ -6,7 +6,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.current_weather.CurrentWeatherFragment"
+        tools:context=".ui.currentWeather.CurrentWeatherFragment"
         tools:background="@drawable/gradient">
 
         <ImageView
@@ -40,7 +40,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:srcCompat="@tools:sample/backgrounds/scenic"
             android:adjustViewBounds="true"
-            android:contentDescription="@string/todayWeatherImg"/>
+            android:contentDescription="@string/todayWeatherImg" />
 
         <TextView
             android:id="@+id/temperature"
@@ -63,8 +63,7 @@
             android:textSize="@dimen/_17ssp"
             app:layout_constraintEnd_toStartOf="@id/humidity"
             app:layout_constraintStart_toEndOf="@id/image_current_weather"
-            app:layout_constraintTop_toBottomOf="@+id/temperature"
-            />
+            app:layout_constraintTop_toBottomOf="@+id/temperature" />
 
         <TextView
             android:id="@+id/humidity"
@@ -75,8 +74,7 @@
             android:textSize="@dimen/_17ssp"
             app:layout_constraintTop_toBottomOf="@+id/temperature"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/image_current_weather"
-            />
+            app:layout_constraintStart_toEndOf="@id/image_current_weather" />
 
         <TextView
             android:id="@+id/label_wind"
@@ -88,7 +86,7 @@
             app:layout_constraintBaseline_toBaselineOf="@+id/wind"
             app:layout_constraintTop_toBottomOf="@+id/label_humidity"
             app:layout_constraintEnd_toStartOf="@id/wind"
-            app:layout_constraintStart_toEndOf="@id/image_current_weather"/>
+            app:layout_constraintStart_toEndOf="@id/image_current_weather" />
 
         <TextView
             android:id="@+id/wind"

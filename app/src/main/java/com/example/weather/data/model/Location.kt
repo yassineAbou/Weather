@@ -6,8 +6,9 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "list_locations",
-    indices = [Index(value = ["locality", "isAutoLocation"], unique = true)]
-) data class Location(
+    indices = [Index(value = ["latitude", "longitude", "isAutoLocation"], unique = true)]
+)
+data class Location(
 
     var locality: String,
     val latitude: Double,

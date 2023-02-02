@@ -1,9 +1,9 @@
 package com.example.weather.data.repository
 
-import com.example.weather.data.remote.WeatherApi
 import com.example.weather.data.model.WeatherResult
-import retrofit2.http.Query
+import com.example.weather.data.remote.WeatherApi
 import javax.inject.Inject
+import retrofit2.http.Query
 
 class WeatherRepository @Inject constructor() {
 
@@ -11,9 +11,9 @@ class WeatherRepository @Inject constructor() {
         @Query("lat") lat: Double,
         @Query("lon") lon: Double
     ): WeatherResult {
-         return WeatherApi.WEATHER_RETROFIT_SERVICE.getWeatherApi(
-            lat =  lat,
-            lon =  lon
-         )
+        return WeatherApi.WEATHER_RETROFIT_SERVICE.getWeatherApi(
+            lat = lat,
+            lon = lon
+        )
     }
 }

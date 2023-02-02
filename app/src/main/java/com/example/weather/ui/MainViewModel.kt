@@ -7,22 +7,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weather.data.model.Location
 import com.example.weather.data.model.WeatherResult
-import com.example.weather.data.repository.GeoCodingRepository
+import com.example.weather.data.repository.GeocodingRepository
 import com.example.weather.data.repository.LocationRepository
 import com.example.weather.data.repository.SwitchPreferencesRepository
 import com.example.weather.data.repository.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
+enum class ApiStatus { LOADING, ERROR, DONE, NONE }
 
-enum class ApiStatus { LOADING, ERROR, DONE, IDLE }
-
-
-data class ListLocationsEvent(
+data class Event(
     val isAddLocationPressed: Boolean = false,
     val hasLocationServiceError: Boolean = false,
     val isEnableProvidersClicked: Boolean = false,
@@ -34,11 +33,11 @@ class MainViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
     private val locationRepository: LocationRepository,
     private val switchPreferencesRepository: SwitchPreferencesRepository,
-    private val geoCodingRepository: GeoCodingRepository
+    private val geoCodingRepository: GeocodingRepository
 ) : ViewModel() {
 
-    private val _listLocationsEvent = MutableStateFlow(ListLocationsEvent())
-    val listLocationsEvent: StateFlow<ListLocationsEvent> = _listLocationsEvent.asStateFlow()
+    private val _event = MutableStateFlow(Event())
+    val event: StateFlow<Event> = _event.asStateFlow()
 
     private val _weatherApiStatus: MutableStateFlow<ApiStatus?> = MutableStateFlow(null)
     val weatherApiStatus = _weatherApiStatus.asStateFlow()
@@ -46,16 +45,16 @@ class MainViewModel @Inject constructor(
     private val _weather: MutableStateFlow<WeatherResult?> = MutableStateFlow(null)
     val weather = _weather.asStateFlow()
 
-    private val _geoCodingApiStatus: MutableStateFlow<ApiStatus?> = MutableStateFlow(null)
-    val geoCodingApiStatus = _geoCodingApiStatus.asStateFlow()
+    private val _geocodingApiStatus: MutableStateFlow<ApiStatus?> = MutableStateFlow(null)
+    val geocodingApiStatus = _geocodingApiStatus.asStateFlow()
 
-    private val _locationGeoCoder:  MutableStateFlow<Location?> = MutableStateFlow(null)
-    val locationGeoCoder = _locationGeoCoder.asStateFlow()
+    private val _locationGeocoder: MutableStateFlow<Location?> = MutableStateFlow(null)
+    val locationGeocoder = _locationGeocoder.asStateFlow()
 
     val listLocationsFlow = locationRepository.listLocationsFlow
 
-    private val _locationName: MutableStateFlow<String?> = MutableStateFlow(null)
-    val locationName = _locationName.asStateFlow()
+    private val _toolbarTitle: MutableStateFlow<String?> = MutableStateFlow(null)
+    val toolbarTitle = _toolbarTitle.asStateFlow()
 
     val isChecked = switchPreferencesRepository.isChecked
 
@@ -63,139 +62,124 @@ class MainViewModel @Inject constructor(
         switchPreferencesRepository.onCheckedChange(isChecked)
     }
 
-    fun getAutoLocation(callback: (Location?) -> Unit)   {
+    fun getAutoLocation(callback: (Location?) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             callback(locationRepository.getAutoLocation(true))
         }
     }
 
-     fun getWeather(latitude: Double, longitude: Double) {
-
+    fun getWeather(latitude: Double, longitude: Double) {
         viewModelScope.launch(Dispatchers.IO) {
-                _weatherApiStatus.value = ApiStatus.LOADING
-                try {
-                    _weather.value = weatherRepository.getWeather(
-                            lat = latitude,
-                            lon = longitude
+            _weatherApiStatus.value = ApiStatus.LOADING
+            try {
+                _weather.value = weatherRepository.getWeather(
+                    lat = latitude,
+                    lon = longitude
 
-                    )
-                    _weatherApiStatus.value = ApiStatus.DONE
-                } catch (e: Exception) {
-                    _weatherApiStatus.value = ApiStatus.ERROR
-                }
+                )
+                _weatherApiStatus.value = ApiStatus.DONE
+            } catch (e: Exception) {
+                _weatherApiStatus.value = ApiStatus.ERROR
+            }
         }
-
     }
-
 
     fun getGeoCoding(latitude: Double, longitude: Double) {
         viewModelScope.launch(Dispatchers.IO) {
-            _geoCodingApiStatus.value = ApiStatus.LOADING
+            _geocodingApiStatus.value = ApiStatus.LOADING
             try {
-                val listGeoCoding  = geoCodingRepository.getGeoCoding(
+                val geoCoding = geoCodingRepository.getGeoCoding(
                     lat = latitude,
                     lon = longitude
                 )
-                val locality = "${listGeoCoding.first().local_names.en}, ${listGeoCoding.first().country}"
-                saveLocationGeoCoder(Location(locality, latitude, longitude, isAutoLocation = true))
+                val locality =
+                    "${geoCoding.address.city.substringBefore(" ")}, ${geoCoding.address.country_code.uppercase()}" // ktlint-disable max-line-length
+                setLocationGeocoder(Location(locality, latitude, longitude, isAutoLocation = true))
                 addLocation(Location(locality, latitude, longitude, isAutoLocation = true))
-                _geoCodingApiStatus.value = ApiStatus.DONE
+                _geocodingApiStatus.value = ApiStatus.DONE
             } catch (e: Exception) {
-                _geoCodingApiStatus.value = ApiStatus.ERROR
+                _geocodingApiStatus.value = ApiStatus.ERROR
             }
         }
-
     }
 
-
-    private fun saveLocationGeoCoder(location: Location) {
-        _locationGeoCoder.value = location
+    private fun setLocationGeocoder(location: Location) {
+        _locationGeocoder.value = location
     }
 
-    fun changeWeatherApiStatus(weatherApiStatus: ApiStatus?) {
+    fun updateWeatherApiStatus(weatherApiStatus: ApiStatus?) {
         _weatherApiStatus.value = weatherApiStatus
     }
 
-    fun setLocationName(locationName: String) {
-        _locationName.value = locationName
+    fun setToolbarTitle(toolbarTitle: String) {
+        _toolbarTitle.value = toolbarTitle
     }
 
-
-     fun addLocation(location: Location) {
-         viewModelScope.launch(Dispatchers.IO) {
-             val autoLocation = getLocationByLocality(location.locality, true)
-             if (location.locality != autoLocation?.locality) {
-                 insert(location)
-                 val lastLocation = getLastLocation()
-                 lastLocation?.let { selectLocation(it) }
-             }
-         }
-     }
+    fun addLocation(location: Location) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val autoLocation = locationRepository.getAutoLocation(true)
+            if (location.locality != autoLocation?.locality) {
+                insert(location)
+                val lastLocation = getLastLocation()
+                lastLocation?.let { selectLocation(it) }
+            }
+        }
+    }
 
     fun selectLocation(location: Location) {
         viewModelScope.launch(Dispatchers.IO) {
             getLocation(location.id)?.let {
                 if (!it.isSelected) {
                     getWeather(it.latitude, it.longitude)
-                    setLocationName(it.locality.substringBefore(','))
+                    setToolbarTitle(it.locality.substringBefore(','))
                 }
             }
-            locationRepository.selectLocation(location)
+            locationRepository.select(location)
         }
     }
 
-    fun getCoordinatesByLocation(context: Context, location: String?) {
+    fun getCoordinatesFromString(context: Context, string: String?) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val geocoder = Geocoder(context)
                 val listAddresses: List<Address>? =
-                    geocoder.getFromLocationName(location.toString(), 5)
+                    geocoder.getFromLocationName(string.toString(), 5)
                 listAddresses?.first()?.let { address ->
-                    val locality = "${location?.replaceFirstChar { it.uppercase() }}, ${address.countryCode}"
+                    val locality =
+                        "${string?.replaceFirstChar { it.uppercase() }}, ${address.countryCode}"
                     val latitude = address.latitude
                     val longitude = address.longitude
                     addLocation(
                         Location(locality, latitude, longitude)
                     )
                 }
-
             } catch (e: Exception) {
-                changeListLocationsEvent(ListLocationsEvent(hasErrorCoordinates = true))
+                updateEvent(Event(hasErrorCoordinates = true))
             }
         }
     }
 
-
-     fun changeListLocationsEvent(listLocationsEvent: ListLocationsEvent) {
-         viewModelScope.launch {
-             _listLocationsEvent.value = listLocationsEvent
-         }
+    fun updateEvent(event: Event) {
+        viewModelScope.launch {
+            _event.value = event
+        }
     }
 
-
-    fun deleteLocation(location: Location) {
-       viewModelScope.launch(Dispatchers.IO) {
-           delete(location)
-           if (location.isSelected) {
-               val lastLocation = getLastLocation()
-               lastLocation?.let { selectLocation(it) }
-           }
-       }
+    fun delete(location: Location) {
+        viewModelScope.launch(Dispatchers.IO) {
+            locationRepository.delete(location)
+            if (location.isSelected) {
+                val lastLocation = getLastLocation()
+                lastLocation?.let { selectLocation(it) }
+            }
+        }
     }
-
-    private suspend fun delete(location: Location) = locationRepository.delete(location)
 
     private suspend fun getLastLocation() = locationRepository.getLastLocation()
 
-    private suspend fun getLocationByLocality(locality: String, isSelected: Boolean) = locationRepository.getLocationByLocality(locality, isSelected)
-
-    private suspend fun insert(location: Location)  = locationRepository.insert(location)
+    private suspend fun insert(location: Location) = locationRepository.insert(location)
 
     suspend fun getSelectedLocation() = locationRepository.getSelectedLocation()
 
     private suspend fun getLocation(id: Int) = locationRepository.getLocation(id)
-
-
-
 }
-

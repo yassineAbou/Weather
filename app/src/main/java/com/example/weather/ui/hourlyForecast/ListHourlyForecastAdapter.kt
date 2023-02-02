@@ -1,14 +1,14 @@
-package com.example.weather.ui.hourly_forecast
+package com.example.weather.ui.hourlyForecast
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.databinding.HourlyForecastItemBinding
 import com.example.weather.data.model.Hourly
+import com.example.weather.databinding.HourlyForecastItemBinding
 
-class ListHourlyForecastAdapter() :
+class ListHourlyForecastAdapter :
     ListAdapter<Hourly, ListHourlyForecastAdapter.ViewHolder>(HourlyForecastDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -20,9 +20,10 @@ class ListHourlyForecastAdapter() :
         return ViewHolder.from(parent)
     }
 
-
-    class ViewHolder private constructor(private val hourlyForecastItemBinding: HourlyForecastItemBinding)
-        : RecyclerView.ViewHolder(hourlyForecastItemBinding.root){
+    class ViewHolder private constructor(
+        private val hourlyForecastItemBinding: HourlyForecastItemBinding
+    ) :
+        RecyclerView.ViewHolder(hourlyForecastItemBinding.root) {
 
         fun bind(hourly: Hourly) {
             hourlyForecastItemBinding.apply {
@@ -39,8 +40,6 @@ class ListHourlyForecastAdapter() :
             }
         }
     }
-
-
 }
 
 class HourlyForecastDiffCallback : DiffUtil.ItemCallback<Hourly>() {
@@ -51,6 +50,4 @@ class HourlyForecastDiffCallback : DiffUtil.ItemCallback<Hourly>() {
     override fun areContentsTheSame(oldItem: Hourly, newItem: Hourly): Boolean {
         return oldItem == newItem
     }
-
-
 }

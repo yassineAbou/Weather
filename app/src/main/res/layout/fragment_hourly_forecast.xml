@@ -3,38 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <variable
-            name="hourlyForecastViewModel"
-            type="com.example.weather.ui.hourly_forecast.HourlyForecastViewModel" />
-    </data>
-
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.hourly_forecast.HourlyForecastFragment"
-    tools:background="@drawable/gradient">
-
-    <ImageView
-        android:id="@+id/connection_status"
-        android:layout_width="@dimen/_100sdp"
-        android:layout_height="@dimen/_100sdp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/loading_animation"
-        tools:visibility="gone"
-        android:contentDescription="@string/connection_status"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list_hourly_forecast"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/hourly_forecast_item"
-        />
+        tools:context=".ui.hourlyForecast.HourlyForecastFragment"
+        tools:background="@drawable/gradient">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/connection_status"
+            android:layout_width="@dimen/_100sdp"
+            android:layout_height="@dimen/_100sdp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@drawable/loading_animation"
+            tools:visibility="gone"
+            android:contentDescription="@string/connection_status" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list_hourly_forecast"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:listitem="@layout/hourly_forecast_item" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

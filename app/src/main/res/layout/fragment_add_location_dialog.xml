@@ -1,36 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
-    tools:context=".ui.add_location.AddLocationDialogFragment">
+    tools:context=".ui.addLocation.AddLocationDialogFragment">
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_56sdp"
+        android:background="#FFFFBB33"
+        android:gravity="center"
         android:scaleType="center"
         android:text="@string/add_new_location"
-        android:textSize="@dimen/_30ssp"
         android:textColor="@color/white"
+        android:textSize="@dimen/_30ssp"
         android:textStyle="bold"
-        android:gravity="center"
-        android:background="#FFFFBB33"
-         />
+        tools:ignore="TextContrastCheck" />
+
     <EditText
         android:id="@+id/editText"
-        android:inputType="textEmailAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_marginLeft="4dp"
+        android:layout_marginTop="16dp"
         android:layout_marginRight="4dp"
         android:layout_marginBottom="4dp"
+        android:autofillHints="username"
         android:hint="@string/location"
-        android:autofillHints="username"/>
+        android:inputType="textEmailAddress"
+        tools:ignore="TouchTargetSizeCheck" />
 
 </LinearLayout>

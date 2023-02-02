@@ -11,12 +11,12 @@ import androidx.viewbinding.ViewBinding
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-
-inline fun <T : ViewBinding> AppCompatActivity.viewBinding(crossinline factory: (LayoutInflater) -> T) =
+inline fun <T : ViewBinding> AppCompatActivity.viewBinding(
+    crossinline factory: (LayoutInflater) -> T
+) =
     lazy(LazyThreadSafetyMode.NONE) {
         factory(layoutInflater)
     }
-
 
 fun <T : ViewBinding> Fragment.viewBinding(factory: (View) -> T): ReadOnlyProperty<Fragment, T> =
     object : ReadOnlyProperty<Fragment, T>, DefaultLifecycleObserver {
@@ -24,7 +24,7 @@ fun <T : ViewBinding> Fragment.viewBinding(factory: (View) -> T): ReadOnlyProper
 
         override fun getValue(thisRef: Fragment, property: KProperty<*>): T =
             binding ?: factory(requireView()).also {
-                if (viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.INITIALIZED)) {
+                if (viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.INITIALIZED)) { // ktlint-disable max-line-length
                     viewLifecycleOwner.lifecycle.addObserver(this)
                     binding = it
                 }
@@ -34,4 +34,3 @@ fun <T : ViewBinding> Fragment.viewBinding(factory: (View) -> T): ReadOnlyProper
             binding = null
         }
     }
-

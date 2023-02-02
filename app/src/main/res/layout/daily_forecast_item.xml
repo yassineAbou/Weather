@@ -7,90 +7,88 @@
 
         <variable
             name="dailyForecast"
-            type="com.example.weather.data.model.Daily"/>
+            type="com.example.weather.data.model.Daily" />
     </data>
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:background="@drawable/gradient"
-    >
-
-    <ImageView
-        android:id="@+id/image_daily_forecast"
-        android:layout_width="@dimen/_100sdp"
-        android:layout_height="@dimen/_100sdp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/backgrounds/scenic"
-        app:layout_constraintBottom_toTopOf="@+id/border_daily_forecast"
-        image_daily_forecast="@{dailyForecast}"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/daily_weather"/>
-
-    <TextView
-        android:id="@+id/daily_max_temperature"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="21°"
-        android:textSize="@dimen/_25ssp"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toStartOf="@+id/daily_min_temperature"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginEnd="@dimen/_15sdp"
-        daily_max_temperature="@{dailyForecast}"/>
-
-    <TextView
-        android:id="@+id/daily_min_temperature"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="18dp"
-        tools:text="16°"
-        android:textColor="@color/gray200"
-        android:textSize="@dimen/_20ssp"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="@dimen/_10sdp"
-        app:layout_constraintTop_toTopOf="parent"
-        daily_min_temperature="@{dailyForecast}"/>
-
-    <TextView
-        android:id="@+id/day"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_10sdp"
-        tools:text="Monday"
-        android:textSize="@dimen/_17ssp"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        day="@{dailyForecast}"/>
-
-    <TextView
-        android:id="@+id/daily_weather_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_10sdp"
-        tools:text="Broken Clouds"
-        android:textColor="@color/gray200"
-        android:textSize="@dimen/_14ssp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/day"
-        daily_weather_description="@{dailyForecast}"/>
-
-    <View
-        android:id="@+id/border_daily_forecast"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_1sdp"
-        android:background="@color/gray100"
-        android:layout_marginStart="@dimen/_10sdp"
-        android:layout_marginEnd="@dimen/_10sdp"
-        app:layout_constraintTop_toBottomOf="@+id/daily_weather_description"
-        app:layout_constraintHorizontal_bias="0.079"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="@dimen/_35sdp"
-        />
+        android:layout_height="wrap_content"
+        tools:background="@drawable/gradient">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/image_daily_forecast"
+            android:layout_width="@dimen/_100sdp"
+            android:layout_height="@dimen/_100sdp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@tools:sample/backgrounds/scenic"
+            app:layout_constraintBottom_toTopOf="@+id/border_daily_forecast"
+            image_daily_forecast="@{dailyForecast}"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/daily_weather" />
+
+        <TextView
+            android:id="@+id/daily_max_temperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="21°"
+            android:textSize="@dimen/_25ssp"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toStartOf="@+id/daily_min_temperature"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="@dimen/_15sdp"
+            daily_max_temperature="@{dailyForecast}" />
+
+        <TextView
+            android:id="@+id/daily_min_temperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            tools:text="16°"
+            android:textColor="@color/grey_200"
+            android:textSize="@dimen/_20ssp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="@dimen/_10sdp"
+            app:layout_constraintTop_toTopOf="parent"
+            daily_min_temperature="@{dailyForecast}" />
+
+        <TextView
+            android:id="@+id/day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_10sdp"
+            tools:text="Monday"
+            android:textSize="@dimen/_17ssp"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            day="@{dailyForecast}" />
+
+        <TextView
+            android:id="@+id/daily_weather_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_10sdp"
+            tools:text="Broken Clouds"
+            android:textColor="@color/grey_200"
+            android:textSize="@dimen/_14ssp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/day"
+            daily_weather_description="@{dailyForecast}" />
+
+        <View
+            android:id="@+id/border_daily_forecast"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_1sdp"
+            android:background="@color/grey_100"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            app:layout_constraintTop_toBottomOf="@+id/daily_weather_description"
+            app:layout_constraintHorizontal_bias="0.079"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="@dimen/_35sdp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

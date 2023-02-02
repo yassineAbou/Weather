@@ -28,9 +28,7 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideLocationDao(locationDatabase: LocationDatabase):
-            LocationDao {
+        LocationDao {
         return locationDatabase.getLocationDao()
     }
-
-
 }

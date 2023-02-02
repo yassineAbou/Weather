@@ -1,4 +1,4 @@
-package com.example.weather.ui.daily_forecast
+package com.example.weather.ui.dailyForecast
 
 import android.os.Bundle
 import android.view.View
@@ -10,16 +10,20 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.weather.R
 import com.example.weather.ui.ApiStatus
 import com.example.weather.ui.MainViewModel
-import com.example.weather.R
+import com.example.weather.util.clearReference
 import com.example.weather.util.viewBinding
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class DailyForecastFragment : Fragment(R.layout.fragment_daily_forecast) {
 
-    private val fragmentDailyForecastBinding by viewBinding(com.example.weather.databinding.FragmentDailyForecastBinding::bind)
+    private val fragmentDailyForecastBinding by viewBinding(
+        com.example.weather.databinding.FragmentDailyForecastBinding::bind
+    )
     private val dailyForecastViewModel: DailyForecastViewModel by viewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
     private val adapter by lazy { ListDailyForecastAdapter() }
@@ -28,13 +32,12 @@ class DailyForecastFragment : Fragment(R.layout.fragment_daily_forecast) {
         super.onViewCreated(view, savedInstanceState)
 
         fragmentDailyForecastBinding.apply {
-
-            dailyForecastViewModel = dailyForecastViewModel
             lifecycleOwner = viewLifecycleOwner
             listDailyForecast.adapter = adapter
-            listDailyForecast.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            listDailyForecast.layoutManager =
+                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            listDailyForecast.clearReference(viewLifecycleOwner.lifecycle)
         }
-
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -43,20 +46,26 @@ class DailyForecastFragment : Fragment(R.layout.fragment_daily_forecast) {
                         when (it) {
                             ApiStatus.LOADING -> {
                                 hideListDailyForecast()
-                                fragmentDailyForecastBinding.connectionStatus.setImageResource(R.drawable.loading_animation)
+                                fragmentDailyForecastBinding.connectionStatus.setImageResource(
+                                    R.drawable.loading_animation
+                                )
                             }
                             ApiStatus.DONE -> {
                                 showListDailyForecast()
                             }
                             ApiStatus.ERROR -> {
                                 hideListDailyForecast()
-                                dailyForecastViewModel.displayDailyForecast(null)
-                                fragmentDailyForecastBinding.connectionStatus.setImageResource(R.drawable.ic_connection_error)
+                                dailyForecastViewModel.updateListDailyForecast(null)
+                                fragmentDailyForecastBinding.connectionStatus.setImageResource(
+                                    R.drawable.ic_connection_error
+                                )
                             }
-                            ApiStatus.IDLE -> {
+                            ApiStatus.NONE -> {
                                 hideListDailyForecast()
-                                dailyForecastViewModel.displayDailyForecast(null)
-                                fragmentDailyForecastBinding.connectionStatus.setImageResource(R.drawable.ic_baseline_search_24)
+                                dailyForecastViewModel.updateListDailyForecast(null)
+                                fragmentDailyForecastBinding.connectionStatus.setImageResource(
+                                    R.drawable.empty_folder
+                                )
                             }
                         }
                     }
@@ -66,9 +75,9 @@ class DailyForecastFragment : Fragment(R.layout.fragment_daily_forecast) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.weather.collectLatest {
+                mainViewModel.weather.buffer().collect {
                     it?.let {
-                        dailyForecastViewModel.displayDailyForecast(it.daily)
+                        dailyForecastViewModel.updateListDailyForecast(it.daily)
                     }
                 }
             }
@@ -76,7 +85,7 @@ class DailyForecastFragment : Fragment(R.layout.fragment_daily_forecast) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                dailyForecastViewModel.listDailyForecast.collect {
+                dailyForecastViewModel.listDailyForecast.buffer().collect {
                     it?.let {
                         adapter.submitList(it)
                     }
@@ -98,5 +107,4 @@ class DailyForecastFragment : Fragment(R.layout.fragment_daily_forecast) {
             listDailyForecast.visibility = View.GONE
         }
     }
-
 }

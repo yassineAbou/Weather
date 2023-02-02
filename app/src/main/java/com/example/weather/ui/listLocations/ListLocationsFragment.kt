@@ -1,7 +1,4 @@
-package com.example.weather.ui.list_locations
-
-
-
+package com.example.weather.ui.listLocations
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -24,36 +21,42 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.ui.ApiStatus
-import com.example.weather.ui.ListLocationsEvent
-import com.example.weather.ui.MainViewModel
 import com.example.weather.R
 import com.example.weather.data.model.Location
 import com.example.weather.databinding.FragmentListLocationsBinding
-import com.example.weather.ui.add_location.AddLocationDialogFragment
-import com.example.weather.util.*
+import com.example.weather.ui.ApiStatus
+import com.example.weather.ui.Event
+import com.example.weather.ui.MainViewModel
+import com.example.weather.ui.addLocation.AddLocationDialogFragment
+import com.example.weather.util.clearReference
+import com.example.weather.util.isLocationEnabled
+import com.example.weather.util.showErrorCoordinatesDialog
+import com.example.weather.util.showGrantedToast
+import com.example.weather.util.showLocationIsDisabledAlert
 import com.example.weather.util.showPermanentlyDeniedDialog
 import com.example.weather.util.showRationaleDialog
-import com.fondesa.kpermissions.*
+import com.example.weather.util.viewBinding
+import com.fondesa.kpermissions.allGranted
+import com.fondesa.kpermissions.anyPermanentlyDenied
+import com.fondesa.kpermissions.anyShouldShowRationale
 import com.fondesa.kpermissions.coroutines.flow
 import com.fondesa.kpermissions.extension.permissionsBuilder
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.rommansabbir.networkx.extension.isInternetConnectedFlow
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
-
-
 @AndroidEntryPoint
-class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
+class ListLocationsFragment : Fragment(R.layout.fragment_list_locations) {
 
-    private val fragmentListLocationsBinding  by viewBinding(FragmentListLocationsBinding::bind)
+    private val fragmentListLocationsBinding by viewBinding(FragmentListLocationsBinding::bind)
     private val mainViewModel: MainViewModel by activityViewModels()
-    private val fusedLocationProviderClient by lazy {
-        LocationServices.getFusedLocationProviderClient(requireContext())
-    }
 
     private val permissionRequest by lazy {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -70,46 +73,49 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
         }
     }
 
+    private val fusedLocationProviderClient by lazy {
+        LocationServices.getFusedLocationProviderClient(requireContext())
+    }
 
-    private val locationCallback : LocationCallback = object: LocationCallback() {
+    private val locationCallback: LocationCallback = object : LocationCallback() {
         override fun onLocationResult(p0: LocationResult) {
             super.onLocationResult(p0)
             val location = p0.lastLocation
-            location?.let { mainViewModel.getGeoCoding(it.latitude, it.longitude) }
+            location?.let {
+                mainViewModel.getGeoCoding(it.latitude, it.longitude)
+            }
         }
     }
 
     private val adapter by lazy {
-        ListLocationsAdapter( object : LocationActions {
-        override fun deleteLocation(location: Location) {
-            mainViewModel.deleteLocation(location)
-        }
+        ListLocationsAdapter(object : LocationActions {
+            override fun delete(location: Location) {
+                mainViewModel.delete(location)
+            }
 
-        override fun selectLocation(location: Location) {
-            mainViewModel.selectLocation(location)
-        }
-    })
-
+            override fun select(location: Location) {
+                mainViewModel.selectLocation(location)
+            }
+        })
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
 
-
         fragmentListLocationsBinding.apply {
             listLocations.adapter = adapter
             listLocations.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            listLocations.clearReference(viewLifecycleOwner.lifecycle)
 
             addLocation.setOnClickListener {
-                mainViewModel.changeListLocationsEvent(ListLocationsEvent(isAddLocationPressed = true))
+                mainViewModel.updateEvent(Event(isAddLocationPressed = true))
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.listLocationsEvent.collect {
+                mainViewModel.event.collectLatest {
                     it.apply {
                         when {
                             isAddLocationPressed -> navigateAddLocationDialog()
@@ -118,38 +124,40 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
                             isEnableProvidersClicked -> navigateToLocationSettings()
                         }
                     }
-                 }
+                }
             }
         }
 
-
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.geoCodingApiStatus.collectLatest {
+                mainViewModel.geocodingApiStatus.collectLatest {
                     it?.let {
                         if (it == ApiStatus.ERROR) {
                             Toast.makeText(
                                 requireContext(),
                                 R.string.auto_location_error,
-                                Toast.LENGTH_SHORT).show()
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
             }
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                isInternetConnectedFlow.collectLatest {
-                    if(it)  {
-                        if (mainViewModel.isChecked.first() && permissionRequest.checkStatus().allGranted()) {
+                isInternetConnectedFlow.collectLatest { isConnected ->
+                    if (isConnected) {
+                        if (mainViewModel.isChecked.firstOrNull() == true && permissionRequest.checkStatus().allGranted()) { // ktlint-disable max-line-length
                             addAutoLocation()
                         }
                     }
+                    if (mainViewModel.weatherApiStatus.value == ApiStatus.ERROR) {
+                        mainViewModel.updateWeatherApiStatus(null)
+                    }
                 }
             }
         }
-
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -157,8 +165,8 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
                     adapter.submitList(it)
                     fragmentListLocationsBinding.listLocations.scrollToPosition(0)
                     if (it.isEmpty()) {
-                        mainViewModel.changeWeatherApiStatus(ApiStatus.IDLE)
-                        mainViewModel.setLocationName("")
+                        mainViewModel.updateWeatherApiStatus(ApiStatus.NONE)
+                        mainViewModel.setToolbarTitle("")
                     }
                 }
             }
@@ -166,7 +174,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                permissionRequest.flow().collect { result ->
+                permissionRequest.flow().collectLatest { result ->
                     when {
                         result.anyPermanentlyDenied() -> {
                             mainViewModel.onIsCheckedChange(false)
@@ -179,17 +187,13 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
                             )
                         }
                         result.allGranted() -> {
-                             requireContext().showGrantedToast()
-                             addAutoLocation()
+                            requireContext().showGrantedToast()
+                            addAutoLocation()
                         }
-
                     }
                 }
             }
         }
-
-
-
     }
 
     private fun navigateAddLocationDialog() {
@@ -204,8 +208,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
         val switchCompat = menuItem.actionView as SwitchCompat
 
         switchCompat.apply {
-
-            setOnCheckedChangeListener { _: CompoundButton?, isChecked : Boolean  ->
+            setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
                 if (isChecked) {
                     mainViewModel.onIsCheckedChange(true)
                 } else {
@@ -218,24 +221,40 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
                     mainViewModel.isChecked.collectLatest { isChecked ->
                         switchCompat.isChecked = isChecked
                         if (isChecked) {
-
-                            thumbDrawable.setTint(ContextCompat.getColor(requireContext(),R.color.orange))
-                            trackDrawable.setTint(ContextCompat.getColor(requireContext(),R.color.orange100))
-
+                            thumbDrawable.setTint(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.orange
+                                )
+                            )
+                            trackDrawable.setTint(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.orange_100
+                                )
+                            )
 
                             requestPermission()
                             if (permissionRequest.checkStatus().allGranted()) {
                                 addAutoLocation()
                             }
-
                         } else {
-
-                            thumbDrawable.setTint(ContextCompat.getColor(requireContext(),R.color.gray200))
-                            trackDrawable.setTint(ContextCompat.getColor(requireContext(), R.color.gray300))
+                            thumbDrawable.setTint(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.grey_200
+                                )
+                            )
+                            trackDrawable.setTint(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    R.color.grey_500
+                                )
+                            )
 
                             if (permissionRequest.checkStatus().allGranted()) {
                                 mainViewModel.getAutoLocation {
-                                    it?.let { mainViewModel.deleteLocation(it) }
+                                    it?.let { mainViewModel.delete(location = it) }
                                 }
                             }
                         }
@@ -245,88 +264,89 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations){
         }
     }
 
-   private fun addAutoLocation() {
-       mainViewModel.getAutoLocation { autoLocation ->
-           if (autoLocation == null) {
-               when (isLocationEnabled(requireContext())) {
-                   false -> mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasLocationServiceError = true))
-                   true -> {
-                       if (mainViewModel.locationGeoCoder.value == null ) {
-                           getCurrentLocation()
-                       } else {
-                           mainViewModel.locationGeoCoder.value?.let { mainViewModel.addLocation(it) }
-                       }
-                   }
-               }
-           }
-       }
-   }
+    private fun addAutoLocation() {
+        mainViewModel.getAutoLocation { autoLocation ->
+            if (autoLocation == null) {
+                when (requireContext().isLocationEnabled()) {
+                    false -> mainViewModel.updateEvent(Event(hasLocationServiceError = true))
+                    true -> {
+                        if (mainViewModel.locationGeocoder.value == null) {
+                            getCurrentLocation()
+                        } else {
+                            mainViewModel.locationGeocoder.value?.let {
+                                mainViewModel.addLocation(
+                                    it
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @SuppressLint("MissingPermission")
     private fun getCurrentLocation() {
-       fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-           if (location != null) {
-               mainViewModel.getGeoCoding(location.latitude, location.longitude)
-           } else {
-               viewLifecycleOwner.lifecycleScope.launch {
-                   requestLocation()
-               }
-           }
-       }
+        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                mainViewModel.getGeoCoding(location.latitude, location.longitude)
+            } else {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    requestLocation()
+                }
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
     private fun requestLocation() {
-        val locationRequest = LocationRequest.create().apply {
-            interval = 0
-            fastestInterval = 0
-            numUpdates = 1
-            priority = Priority.PRIORITY_HIGH_ACCURACY
-            setExpirationDuration(15000)
-        }
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 0).apply {
+            setMinUpdateIntervalMillis(0)
+            setMaxUpdates(1)
+            setDurationMillis(15000)
+        }.build()
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
     }
 
     private fun showLocationIsDisabledAlert() {
         requireContext().showLocationIsDisabledAlert(
             enableLocationProviders = {
-                mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasLocationServiceError = false))
-                mainViewModel.changeListLocationsEvent(ListLocationsEvent(isEnableProvidersClicked = true))
+                mainViewModel.updateEvent(Event(hasLocationServiceError = false))
+                mainViewModel.updateEvent(Event(isEnableProvidersClicked = true))
             },
             stopAutoLocation = {
-                mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasLocationServiceError = false))
+                mainViewModel.updateEvent(Event(hasLocationServiceError = false))
                 mainViewModel.onIsCheckedChange(false)
             }
         )
-   }
+    }
 
-   private fun showErrorCoordinatesDialog() {
-       requireContext().showErrorCoordinatesDialog(
-          tryAgain = {
-              mainViewModel.changeListLocationsEvent(ListLocationsEvent(isAddLocationPressed = true))
-              mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasErrorCoordinates = false))
-          },
-          close = {
-              mainViewModel.changeListLocationsEvent(ListLocationsEvent(hasErrorCoordinates = false))
-          }
-       )
+    private fun showErrorCoordinatesDialog() {
+        requireContext().showErrorCoordinatesDialog(
+            tryAgain = {
+                mainViewModel.updateEvent(Event(isAddLocationPressed = true))
+                mainViewModel.updateEvent(Event(hasErrorCoordinates = false))
+            },
+            close = {
+                mainViewModel.updateEvent(Event(hasErrorCoordinates = false))
+            }
+        )
+    }
 
-   }
+    private fun navigateToLocationSettings() {
+        startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+        mainViewModel.updateEvent(Event(isEnableProvidersClicked = false))
+    }
 
-
-   private fun navigateToLocationSettings() {
-      startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-      mainViewModel.changeListLocationsEvent(ListLocationsEvent(isEnableProvidersClicked = false))
-   }
-
-   private fun requestPermission() {
-     if (permissionRequest.checkStatus().allGranted()) {
-           return
-      }
-      else {
-          permissionRequest.send()
-      }
-  }
-
+    private fun requestPermission() {
+        if (permissionRequest.checkStatus().allGranted()) {
+            return
+        } else {
+            permissionRequest.send()
+        }
+    }
 }
-

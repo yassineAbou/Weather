@@ -1,34 +1,31 @@
-package com.example.weather.ui.current_weather
-
+package com.example.weather.ui.currentWeather
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.weather.ui.ApiStatus
-import com.example.weather.ui.MainViewModel
 import com.example.weather.R
 import com.example.weather.databinding.FragmentCurrentWeatherBinding
-import com.example.weather.util.bindImageCurrentWeather
+import com.example.weather.ui.ApiStatus
+import com.example.weather.ui.MainViewModel
+import com.example.weather.util.bindImage
 import com.example.weather.util.viewBinding
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-
-class CurrentWeatherFragment : androidx.fragment.app.Fragment(R.layout.fragment_current_weather) {
-
+class CurrentWeatherFragment : Fragment(R.layout.fragment_current_weather) {
 
     private val fragmentCurrentWeatherBinding by viewBinding(FragmentCurrentWeatherBinding::bind)
     private val currentWeatherViewModel: CurrentWeatherViewModel by viewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -37,20 +34,26 @@ class CurrentWeatherFragment : androidx.fragment.app.Fragment(R.layout.fragment_
                         when (it) {
                             ApiStatus.LOADING -> {
                                 hideCurrentWeatherGroup()
-                                fragmentCurrentWeatherBinding.connectionStatus.setImageResource(R.drawable.loading_animation)
+                                fragmentCurrentWeatherBinding.connectionStatus.setImageResource(
+                                    R.drawable.loading_animation
+                                )
                             }
                             ApiStatus.DONE -> {
                                 showCurrentWeatherGroup()
                             }
                             ApiStatus.ERROR -> {
-                                currentWeatherViewModel.displayCurrentWeather(null)
+                                currentWeatherViewModel.updateCurrentWeather(null)
                                 hideCurrentWeatherGroup()
-                                fragmentCurrentWeatherBinding.connectionStatus.setImageResource(R.drawable.ic_connection_error)
+                                fragmentCurrentWeatherBinding.connectionStatus.setImageResource(
+                                    R.drawable.ic_connection_error
+                                )
                             }
-                            ApiStatus.IDLE -> {
-                                currentWeatherViewModel.displayCurrentWeather(null)
+                            ApiStatus.NONE -> {
+                                currentWeatherViewModel.updateCurrentWeather(null)
                                 hideCurrentWeatherGroup()
-                                fragmentCurrentWeatherBinding.connectionStatus.setImageResource(R.drawable.ic_baseline_search_24)
+                                fragmentCurrentWeatherBinding.connectionStatus.setImageResource(
+                                    R.drawable.empty_folder
+                                )
                             }
                         }
                     }
@@ -60,9 +63,9 @@ class CurrentWeatherFragment : androidx.fragment.app.Fragment(R.layout.fragment_
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.weather.collectLatest {
+                mainViewModel.weather.buffer().collect {
                     it?.let {
-                        currentWeatherViewModel.displayCurrentWeather(it.current)
+                        currentWeatherViewModel.updateCurrentWeather(it.current)
                     }
                 }
             }
@@ -70,18 +73,16 @@ class CurrentWeatherFragment : androidx.fragment.app.Fragment(R.layout.fragment_
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                currentWeatherViewModel.currentWeather.collectLatest {
-                    it?.let {  currentWeather ->
+                currentWeatherViewModel.currentWeather.buffer().collect {
+                    it?.let { currentWeather ->
                         fragmentCurrentWeatherBinding.apply {
-
-                            bindImageCurrentWeather(
+                            bindImage(
                                 imageCurrentWeather,
                                 getString(R.string.open_weather_img, currentWeather.weather[0].icon)
                             )
                             temperature.text = "${currentWeather.temp.toInt()}°"
                             humidity.text = "${currentWeather.humidity}%"
                             wind.text = "${currentWeather.wind_speed}m/s"
-
                         }
                     }
                 }
@@ -102,8 +103,4 @@ class CurrentWeatherFragment : androidx.fragment.app.Fragment(R.layout.fragment_
             currentWeatherGroup.visibility = View.GONE
         }
     }
-
-
-
-
 }

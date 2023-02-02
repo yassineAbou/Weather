@@ -1,15 +1,15 @@
-package com.example.weather.ui.daily_forecast
+package com.example.weather.ui.dailyForecast
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.databinding.DailyForecastItemBinding
 import com.example.weather.data.model.Daily
+import com.example.weather.databinding.DailyForecastItemBinding
 
-class ListDailyForecastAdapter() :
-    ListAdapter<Daily, ListDailyForecastAdapter.ViewHolder>(DailyForecastDiffCallback())         {
+class ListDailyForecastAdapter :
+    ListAdapter<Daily, ListDailyForecastAdapter.ViewHolder>(DailyForecastDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val dailyForecast = getItem(position)!!
@@ -20,9 +20,10 @@ class ListDailyForecastAdapter() :
         return ViewHolder.from(parent)
     }
 
-
-    class ViewHolder private constructor(val dailyForecastItemBinding: DailyForecastItemBinding) :
-        RecyclerView.ViewHolder(dailyForecastItemBinding.root){
+    class ViewHolder private constructor(
+        private val dailyForecastItemBinding: DailyForecastItemBinding
+    ) :
+        RecyclerView.ViewHolder(dailyForecastItemBinding.root) {
 
         fun bind(daily: Daily) {
             dailyForecastItemBinding.apply {
@@ -49,6 +50,4 @@ class DailyForecastDiffCallback : DiffUtil.ItemCallback<Daily>() {
     override fun areContentsTheSame(oldItem: Daily, newItem: Daily): Boolean {
         return oldItem == newItem
     }
-
-
 }

@@ -1,4 +1,4 @@
-package com.example.weather.ui.hourly_forecast
+package com.example.weather.ui.hourlyForecast
 
 import android.os.Bundle
 import android.view.View
@@ -10,11 +10,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weather.ui.ApiStatus
-import com.example.weather.ui.MainViewModel
 import com.example.weather.R
 import com.example.weather.databinding.FragmentHourlyForecastBinding
+import com.example.weather.ui.ApiStatus
+import com.example.weather.ui.MainViewModel
+import com.example.weather.util.clearReference
 import com.example.weather.util.viewBinding
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -29,13 +31,12 @@ class HourlyForecastFragment : Fragment(R.layout.fragment_hourly_forecast) {
         super.onViewCreated(view, savedInstanceState)
 
         fragmentHourlyForecastBinding.apply {
-
-            hourlyForecastViewModel = hourlyForecastViewModel
             lifecycleOwner = viewLifecycleOwner
             listHourlyForecast.adapter = adapter
-            listHourlyForecast.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            listHourlyForecast.layoutManager =
+                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            listHourlyForecast.clearReference(viewLifecycleOwner.lifecycle)
         }
-
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -44,20 +45,26 @@ class HourlyForecastFragment : Fragment(R.layout.fragment_hourly_forecast) {
                         when (it) {
                             ApiStatus.LOADING -> {
                                 hideListHourlyForecast()
-                                fragmentHourlyForecastBinding.connectionStatus.setImageResource(R.drawable.loading_animation)
+                                fragmentHourlyForecastBinding.connectionStatus.setImageResource(
+                                    R.drawable.loading_animation
+                                )
                             }
                             ApiStatus.DONE -> {
                                 showListHourlyForecast()
                             }
                             ApiStatus.ERROR -> {
                                 hideListHourlyForecast()
-                                hourlyForecastViewModel.displayHourlyForecast(null)
-                                fragmentHourlyForecastBinding.connectionStatus.setImageResource(R.drawable.ic_connection_error)
+                                hourlyForecastViewModel.updateListHourlyForecast(null)
+                                fragmentHourlyForecastBinding.connectionStatus.setImageResource(
+                                    R.drawable.ic_connection_error
+                                )
                             }
-                            ApiStatus.IDLE -> {
+                            ApiStatus.NONE -> {
                                 hideListHourlyForecast()
-                                hourlyForecastViewModel.displayHourlyForecast(null)
-                                fragmentHourlyForecastBinding.connectionStatus.setImageResource(R.drawable.ic_baseline_search_24)
+                                hourlyForecastViewModel.updateListHourlyForecast(null)
+                                fragmentHourlyForecastBinding.connectionStatus.setImageResource(
+                                    R.drawable.empty_folder
+                                )
                             }
                         }
                     }
@@ -65,11 +72,11 @@ class HourlyForecastFragment : Fragment(R.layout.fragment_hourly_forecast) {
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launch{
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.weather.collectLatest {
+                mainViewModel.weather.buffer().collect {
                     it?.let {
-                        hourlyForecastViewModel.displayHourlyForecast(it.hourly)
+                        hourlyForecastViewModel.updateListHourlyForecast(it.hourly)
                     }
                 }
             }
@@ -77,7 +84,7 @@ class HourlyForecastFragment : Fragment(R.layout.fragment_hourly_forecast) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                hourlyForecastViewModel.listHourlyForecastFlow.collect {
+                hourlyForecastViewModel.listHourlyForecast.buffer().collect {
                     it?.let {
                         adapter.submitList(it)
                     }
@@ -99,5 +106,4 @@ class HourlyForecastFragment : Fragment(R.layout.fragment_hourly_forecast) {
             listHourlyForecast.visibility = View.GONE
         }
     }
-
 }

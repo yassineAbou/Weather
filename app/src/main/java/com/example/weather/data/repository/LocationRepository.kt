@@ -1,14 +1,13 @@
 package com.example.weather.data.repository
 
-
-import com.example.weather.data.model.Location
 import com.example.weather.data.local.LocationDao
-import kotlinx.coroutines.flow.distinctUntilChanged
+import com.example.weather.data.model.Location
 import javax.inject.Inject
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 class LocationRepository @Inject constructor(
     private val locationDao: LocationDao
-    ) {
+) {
 
     val listLocationsFlow = locationDao.getListLocations().distinctUntilChanged()
 
@@ -20,13 +19,10 @@ class LocationRepository @Inject constructor(
 
     suspend fun getLastLocation() = locationDao.getLastLocation()
 
-    suspend fun getLocationByLocality(locality: String, isSelected: Boolean) = locationDao.getLocationByLocality(locality, isSelected)
+    suspend fun select(location: Location) = locationDao.select(location)
 
-    suspend fun selectLocation(location: Location) = locationDao.selectLocation(location)
-
-    suspend fun getAutoLocation(isAutoLocation: Boolean) = locationDao.getAutoLocation(isAutoLocation)
+    suspend fun getAutoLocation(isAutoLocation: Boolean) =
+        locationDao.getAutoLocation(isAutoLocation)
 
     suspend fun getLocation(id: Int) = locationDao.getLocation(id)
-
-
 }

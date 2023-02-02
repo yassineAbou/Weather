@@ -1,4 +1,4 @@
-package com.example.weather.ui.daily_forecast
+package com.example.weather.ui.dailyForecast
 
 import androidx.lifecycle.ViewModel
 import com.example.weather.data.model.Daily
@@ -10,7 +10,7 @@ class DailyForecastViewModel : ViewModel() {
     private val _listDailyForecast: MutableStateFlow<List<Daily>?> = MutableStateFlow(null)
     val listDailyForecast = _listDailyForecast.asStateFlow()
 
-    fun displayDailyForecast(listDaily: List<Daily>?) {
+    fun updateListDailyForecast(listDaily: List<Daily>?) {
         _listDailyForecast.value = listDaily
     }
 }
