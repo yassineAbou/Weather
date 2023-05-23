@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/is_checked"
+        android:id="@+id/toggled"
         android:title=""
         app:actionViewClass="androidx.appcompat.widget.SwitchCompat"
         app:showAsAction="always" />

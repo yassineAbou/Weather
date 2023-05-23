@@ -10,7 +10,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 private const val WEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5/"
-private const val API_KEY = BuildConfig.API_KEY
+private const val WEATHER_API_KEY = BuildConfig.WEATHER_API_KEY
 
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
@@ -28,7 +28,7 @@ interface WeatherApiService {
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
         @Query("exclude") exclude: String = "minutely,alerts",
-        @Query("appid") appid: String = API_KEY,
+        @Query("appid") appid: String = WEATHER_API_KEY,
         @Query("units") unit: String = "metric"
     ): WeatherResult
 }

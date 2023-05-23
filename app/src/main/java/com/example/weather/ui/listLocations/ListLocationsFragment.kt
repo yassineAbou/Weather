@@ -80,8 +80,8 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations) {
     private val locationCallback: LocationCallback = object : LocationCallback() {
         override fun onLocationResult(p0: LocationResult) {
             super.onLocationResult(p0)
-            val location = p0.lastLocation
-            location?.let {
+            val lastLocation = p0.lastLocation
+            lastLocation?.let {
                 mainViewModel.getGeoCoding(it.latitude, it.longitude)
             }
         }
@@ -103,7 +103,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
 
-        fragmentListLocationsBinding.apply {
+        fragmentListLocationsBinding.run {
             listLocations.adapter = adapter
             listLocations.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             listLocations.clearReference(viewLifecycleOwner.lifecycle)
@@ -148,7 +148,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 isInternetConnectedFlow.collectLatest { isConnected ->
                     if (isConnected) {
-                        if (mainViewModel.isChecked.firstOrNull() == true && permissionRequest.checkStatus().allGranted()) { // ktlint-disable max-line-length
+                        if (mainViewModel.toggled.firstOrNull() == true && permissionRequest.checkStatus().allGranted()) { // ktlint-disable max-line-length
                             addAutoLocation()
                         }
                     }
@@ -177,13 +177,13 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations) {
                 permissionRequest.flow().collectLatest { result ->
                     when {
                         result.anyPermanentlyDenied() -> {
-                            mainViewModel.onIsCheckedChange(false)
+                            mainViewModel.toggle(false)
                             requireContext().showPermanentlyDeniedDialog()
                         }
                         result.anyShouldShowRationale() -> {
                             requireContext().showRationaleDialog(
                                 permissionRequest = permissionRequest,
-                                onIsCheckedChange = { mainViewModel.onIsCheckedChange(false) }
+                                toggle = { mainViewModel.toggle(false) }
                             )
                         }
                         result.allGranted() -> {
@@ -204,23 +204,23 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations) {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.auto_location_menu, menu)
-        val menuItem = menu.findItem(R.id.is_checked)
+        val menuItem = menu.findItem(R.id.toggled)
         val switchCompat = menuItem.actionView as SwitchCompat
 
         switchCompat.apply {
             setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
                 if (isChecked) {
-                    mainViewModel.onIsCheckedChange(true)
+                    mainViewModel.toggle(true)
                 } else {
-                    mainViewModel.onIsCheckedChange(false)
+                    mainViewModel.toggle(false)
                 }
             }
 
             viewLifecycleOwner.lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    mainViewModel.isChecked.collectLatest { isChecked ->
-                        switchCompat.isChecked = isChecked
-                        if (isChecked) {
+                    mainViewModel.toggled.collectLatest { toggled ->
+                        switchCompat.isChecked = toggled
+                        if (toggled) {
                             thumbDrawable.setTint(
                                 ContextCompat.getColor(
                                     requireContext(),
@@ -320,7 +320,7 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations) {
             },
             stopAutoLocation = {
                 mainViewModel.updateEvent(Event(hasLocationServiceError = false))
-                mainViewModel.onIsCheckedChange(false)
+                mainViewModel.toggle(false)
             }
         )
     }

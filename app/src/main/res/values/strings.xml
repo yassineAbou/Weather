@@ -22,7 +22,7 @@
     <string name="toolbar_current_weather">Today, unit:°C</string>
     <string name="toolbar_list_locations">Auto location</string>
     <string name="error">Error</string>
-    <string name="error_coordinates">Make sure you write the location correctly and internet connexion is not missing</string>
+    <string name="error_coordinates_description">Make sure you write the location correctly and internet connexion is not missing</string>
     <string name="try_again">try again</string>
     <string name="close">close</string>
     <string name="enable_location_title">Enable Location Providers</string>

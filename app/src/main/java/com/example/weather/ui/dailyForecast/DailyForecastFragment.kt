@@ -31,7 +31,7 @@ class DailyForecastFragment : Fragment(R.layout.fragment_daily_forecast) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragmentDailyForecastBinding.apply {
+        fragmentDailyForecastBinding.run {
             lifecycleOwner = viewLifecycleOwner
             listDailyForecast.adapter = adapter
             listDailyForecast.layoutManager =

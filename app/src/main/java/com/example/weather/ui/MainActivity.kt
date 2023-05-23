@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupViewpager2() {
-        activityMainBinding.apply {
+        activityMainBinding.run {
             viewpager2.adapter = pagerAdapter
 
             viewpager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -64,28 +64,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun toolbarDailyForecast() {
-        activityMainBinding.apply {
+        activityMainBinding.run {
             toolbar.title = mainViewModel.toolbarTitle.value
             toolbar.subtitle = getString(R.string.toolbar_daily_forecast)
         }
     }
 
     private fun toolbarHourlyForecast() {
-        activityMainBinding.apply {
+        activityMainBinding.run {
             toolbar.title = mainViewModel.toolbarTitle.value
             toolbar.subtitle = getString(R.string.toolbar_hourly_forecast)
         }
     }
 
     private fun toolbarCurrentWeather() {
-        activityMainBinding.apply {
+        activityMainBinding.run {
             toolbar.title = mainViewModel.toolbarTitle.value
             toolbar.subtitle = getString(R.string.toolbar_current_weather)
         }
     }
 
     private fun toolbarListLocations() {
-        activityMainBinding.apply {
+        activityMainBinding.run {
             toolbar.title = getString(R.string.toolbar_list_locations)
             toolbar.subtitle = ""
         }

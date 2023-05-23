@@ -29,7 +29,7 @@ interface GeocodingApiService {
 }
 
 object GeocodingApi {
-    val GEO_CODING_RETROFIT_SERVICE: GeocodingApiService by lazy {
+    val GEOCODING_RETROFIT_SERVICE: GeocodingApiService by lazy {
         retrofit.create(
             GeocodingApiService::class.java
         )

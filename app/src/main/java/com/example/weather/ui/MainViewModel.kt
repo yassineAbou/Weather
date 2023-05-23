@@ -9,7 +9,7 @@ import com.example.weather.data.model.Location
 import com.example.weather.data.model.WeatherResult
 import com.example.weather.data.repository.GeocodingRepository
 import com.example.weather.data.repository.LocationRepository
-import com.example.weather.data.repository.SwitchPreferencesRepository
+import com.example.weather.data.repository.TogglePreferencesRepository
 import com.example.weather.data.repository.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -32,7 +32,7 @@ data class Event(
 class MainViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
     private val locationRepository: LocationRepository,
-    private val switchPreferencesRepository: SwitchPreferencesRepository,
+    private val togglePreferencesRepository: TogglePreferencesRepository,
     private val geoCodingRepository: GeocodingRepository
 ) : ViewModel() {
 
@@ -56,10 +56,10 @@ class MainViewModel @Inject constructor(
     private val _toolbarTitle: MutableStateFlow<String?> = MutableStateFlow(null)
     val toolbarTitle = _toolbarTitle.asStateFlow()
 
-    val isChecked = switchPreferencesRepository.isChecked
+    val toggled = togglePreferencesRepository.toggled
 
-    fun onIsCheckedChange(isChecked: Boolean) = viewModelScope.launch(Dispatchers.IO) {
-        switchPreferencesRepository.onCheckedChange(isChecked)
+    fun toggle(isChecked: Boolean) = viewModelScope.launch(Dispatchers.IO) {
+        togglePreferencesRepository.toggle(isChecked)
     }
 
     fun getAutoLocation(callback: (Location?) -> Unit) {

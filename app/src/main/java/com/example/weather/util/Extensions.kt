@@ -6,17 +6,16 @@ import android.content.Intent
 import android.location.LocationManager
 import android.net.Uri
 import android.provider.Settings
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.weather.R
 import com.fondesa.kpermissions.request.PermissionRequest
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 fun RecyclerView.clearReference(lifecycle: Lifecycle) {
     lifecycle.addObserver(object : DefaultLifecycleObserver {
@@ -34,7 +33,7 @@ internal fun Context.showGrantedToast() {
 
 internal fun Context.showRationaleDialog(
     permissionRequest: PermissionRequest,
-    onIsCheckedChange: () -> Unit
+    toggle: () -> Unit
 ) {
     AlertDialog.Builder(this)
         .setCancelable(false)
@@ -42,7 +41,7 @@ internal fun Context.showRationaleDialog(
         .setPositiveButton(R.string.request_again) { _, _ ->
             permissionRequest.send()
         }
-        .setNegativeButton(android.R.string.cancel) { _, _ -> onIsCheckedChange() }
+        .setNegativeButton(android.R.string.cancel) { _, _ -> toggle() }
         .show()
 }
 
@@ -85,7 +84,7 @@ fun Context.showErrorCoordinatesDialog(
 ) {
     AlertDialog.Builder(this)
         .setTitle(R.string.error)
-        .setMessage(R.string.error_coordinates)
+        .setMessage(R.string.error_coordinates_description)
         .setCancelable(false)
         .setPositiveButton(R.string.try_again) { _, _ -> tryAgain() }
         .setNegativeButton(R.string.close) { _, _ -> close() }
@@ -99,20 +98,14 @@ fun Context.isLocationEnabled(): Boolean {
     )
 }
 
-fun bindImage(imgView: ImageView, imgUrl: String?) {
-    Glide.with(imgView.context)
-        .load(imgUrl)
-        .into(imgView)
+fun convertDateToHour(dt: Int): String {
+    val date = Date((dt * 1000L))
+    val simpleDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    return simpleDateFormat.format(date)
 }
 
-fun convertDateToHour(dt: Int): String? {
+fun convertDateToDay(dt: Int): String {
     val date = Date((dt * 1000L))
-    val sdf = SimpleDateFormat("HH:mm")
-    return sdf.format(date)
-}
-
-fun convertDateToDay(dt: Int): String? {
-    val date = Date((dt * 1000L))
-    val sdf = SimpleDateFormat("EEEE")
-    return sdf.format(date)
+    val simpleDateFormat = SimpleDateFormat("EEEE", Locale.getDefault())
+    return simpleDateFormat.format(date)
 }

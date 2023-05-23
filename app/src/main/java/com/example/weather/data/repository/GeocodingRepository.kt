@@ -11,7 +11,7 @@ class GeocodingRepository @Inject constructor() {
         @Query("lat") lat: Double,
         @Query("lon") lon: Double
     ): Geocoding {
-        return GeocodingApi.GEO_CODING_RETROFIT_SERVICE.getGeocodingApi(
+        return GeocodingApi.GEOCODING_RETROFIT_SERVICE.getGeocodingApi(
             lat = lat,
             lon = lon
         )

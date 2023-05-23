@@ -30,7 +30,7 @@ class HourlyForecastFragment : Fragment(R.layout.fragment_hourly_forecast) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragmentHourlyForecastBinding.apply {
+        fragmentHourlyForecastBinding.run {
             lifecycleOwner = viewLifecycleOwner
             listHourlyForecast.adapter = adapter
             listHourlyForecast.layoutManager =

@@ -3,6 +3,7 @@ package com.example.weather.util
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import coil.load
 import com.example.weather.R
 import com.example.weather.data.model.Daily
 import com.example.weather.data.model.Hourly
@@ -43,10 +44,7 @@ fun TextView.setHourlyTemperature(hourly: Hourly) {
 
 @BindingAdapter("image_hourly_forecast")
 fun ImageView.setImageHourlyForecast(hourly: Hourly) {
-    bindImage(
-        imgView = this,
-        imgUrl = "https://openweathermap.org/img/wn/${hourly.weather[0].icon}@2x.png"
-    )
+    this.load("https://openweathermap.org/img/wn/${hourly.weather[0].icon}@2x.png")
 }
 
 // --------------------
@@ -75,8 +73,5 @@ fun TextView.setDailyWeatherDescription(daily: Daily) {
 
 @BindingAdapter("image_daily_forecast")
 fun ImageView.setImageDailyForecast(daily: Daily) {
-    bindImage(
-        imgView = this,
-        imgUrl = "https://openweathermap.org/img/wn/${daily.weather[0].icon}@2x.png"
-    )
+    this.load("https://openweathermap.org/img/wn/${daily.weather[0].icon}@2x.png")
 }
