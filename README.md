@@ -24,13 +24,13 @@ The program can also detect the user’s location to provide accurate local weat
 
 ## Screenshots
 
-<div style="display:flex; flex-wrap:wrap;">
-  <img src="https://drive.google.com/uc?export=view&id=1WxGvaILZxyc81yZCcz9g6nRvPIhxTxW5" style="flex:1; margin:5px;" height="450">
-  <img src="https://drive.google.com/uc?export=view&id=1jlPvT3d-A-hztQelKdOhV0blilVkMeRv" style="flex:1; margin:5px;" height="450">
-  <img src="https://drive.google.com/uc?export=view&id=1FyPKaNQYeY3jDh8cw8jOQj3f78xQD4sG" style="flex:1; margin:5px;" height="450">
-  <img src="https://drive.google.com/uc?export=view&id=18SXB6Jf9cKacNPTMRhz_D9cW3gjw0Mdr" style="flex:1; margin:5px;" height="450">
-
-</div>
+<div style="display:flex; flex-wrap:wrap;">  
+  <img src="https://drive.google.com/uc?export=view&id=1stkJTJVDVN_Qukmu-Rp6uyawWqW_kA0W" style="flex:1; margin:5px;" height="450">  
+ <img src="https://drive.google.com/uc?export=view&id=11gAW41NJy_PZdrjK1L28lfHuqiywDmii" style="flex:1; margin:5px;" height="450">  
+ <img src="https://drive.google.com/uc?export=view&id=1xHdnwVbcH-3WNxmUF7PmqeivstM_7A1L" style="flex:1; margin:5px;" height="450">  
+ <img src="https://drive.google.com/uc?export=view&id=1GNGjUxYrBumefc35lTanlc11yM1qsw14" style="flex:1; margin:5px;" height="450">  
+  
+</div>  
 
 
 ## API Key :key:
