@@ -8,7 +8,7 @@
 
         <variable
             name="hourlyForecast"
-            type="com.example.weather.data.model.Hourly" />
+            type="com.yassineabou.weather.data.model.Hourly" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

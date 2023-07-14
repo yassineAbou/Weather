@@ -11,11 +11,11 @@
 
         <variable
             name="location"
-            type="com.example.weather.data.model.Location" />
+            type="com.yassineabou.weather.data.model.Location" />
 
         <variable
             name="locationActions"
-            type="com.example.weather.ui.listLocations.LocationActions" />
+            type="com.yassineabou.weather.ui.listLocations.LocationActions" />
     </data>
 
 
