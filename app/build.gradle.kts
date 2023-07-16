@@ -99,3 +99,12 @@ dependencies {
     // networkX
     implementation("com.github.rommansabbir:NetworkX:4.2.0")
 }
+android {
+    buildTypes {
+        create("benchmark") {
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
+        }
+    }
+}
