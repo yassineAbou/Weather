@@ -79,9 +79,6 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-moshi:$retrofitVersion")
 
-    // coil
-    implementation("io.coil-kt:coil:2.4.0")
-
     // room
     implementation("androidx.room:room-ktx:2.5.2")
     kapt("androidx.room:room-compiler:2.5.2")
@@ -106,5 +103,8 @@ android {
             matchingFallbacks += listOf("release")
             isDebuggable = false
         }
+    }
+    defaultConfig {
+        signingConfig = signingConfigs.getByName("debug")
     }
 }

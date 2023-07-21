@@ -3,7 +3,6 @@ package com.yassineabou.weather.util
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import coil.load
 import com.yassineabou.weather.R
 import com.yassineabou.weather.data.model.Daily
 import com.yassineabou.weather.data.model.Hourly
@@ -44,7 +43,7 @@ fun TextView.setHourlyTemperature(hourly: Hourly) {
 
 @BindingAdapter("image_hourly_forecast")
 fun ImageView.setImageHourlyForecast(hourly: Hourly) {
-    this.load("https://openweathermap.org/img/wn/${hourly.weather[0].icon}@2x.png")
+    this.setImage(hourly.weather[0].icon)
 }
 
 // --------------------
@@ -73,5 +72,5 @@ fun TextView.setDailyWeatherDescription(daily: Daily) {
 
 @BindingAdapter("image_daily_forecast")
 fun ImageView.setImageDailyForecast(daily: Daily) {
-    this.load("https://openweathermap.org/img/wn/${daily.weather[0].icon}@2x.png")
+    this.setImage(daily.weather[0].icon)
 }

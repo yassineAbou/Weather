@@ -6,6 +6,7 @@ import android.content.Intent
 import android.location.LocationManager
 import android.net.Uri
 import android.provider.Settings
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -109,3 +110,23 @@ fun convertDateToDay(dt: Int): String {
     val simpleDateFormat = SimpleDateFormat("EEEE", Locale.getDefault())
     return simpleDateFormat.format(date)
 }
+
+fun ImageView.setImage(conditionCode: String) {
+    this.run {
+        when (conditionCode) {
+            "01d" -> setImageResource(R.drawable.d01)
+            "01n" -> setImageResource(R.drawable.n01)
+            "02d" -> setImageResource(R.drawable.d02)
+            "02n" -> setImageResource(R.drawable.n02)
+            "10d" -> setImageResource(R.drawable.d10)
+            "10n" -> setImageResource(R.drawable.n10)
+            "03d", "03n" -> setImageResource(R.drawable.dn03)
+            "04d", "04n" -> setImageResource(R.drawable.dn04)
+            "09d", "09n" -> setImageResource(R.drawable.dn09)
+            "11d", "11n" -> setImageResource(R.drawable.dn11)
+            "13d", "13n" -> setImageResource(R.drawable.dn13)
+            "50d", "50n" -> setImageResource(R.drawable.dn50)
+        }
+    }
+}
+

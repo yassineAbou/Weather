@@ -31,7 +31,9 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.rommansabbir.networkx.extension.isInternetConnectedFlow
+import com.rommansabbir.networkx.NetworkXProvider.isInternetConnectedFlow
+
+
 import com.yassineabou.weather.R
 import com.yassineabou.weather.data.model.Location
 import com.yassineabou.weather.databinding.FragmentListLocationsBinding

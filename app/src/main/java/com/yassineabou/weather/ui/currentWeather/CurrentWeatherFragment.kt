@@ -8,11 +8,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import coil.load
 import com.yassineabou.weather.R
 import com.yassineabou.weather.databinding.FragmentCurrentWeatherBinding
 import com.yassineabou.weather.ui.ApiStatus
 import com.yassineabou.weather.ui.MainViewModel
+import com.yassineabou.weather.util.setImage
 import com.yassineabou.weather.util.viewBinding
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
@@ -76,9 +76,7 @@ class CurrentWeatherFragment : Fragment(R.layout.fragment_current_weather) {
                 currentWeatherViewModel.currentWeather.buffer().collect {
                     it?.let { currentWeather ->
                         fragmentCurrentWeatherBinding.apply {
-                            imageCurrentWeather.load(
-                                getString(R.string.open_weather_img, currentWeather.weather[0].icon)
-                            )
+                            imageCurrentWeather.setImage(currentWeather.weather[0].icon)
                             temperature.text = "${currentWeather.temp.toInt()}°"
                             humidity.text = "${currentWeather.humidity}%"
                             wind.text = "${currentWeather.wind_speed}m/s"
@@ -103,4 +101,3 @@ class CurrentWeatherFragment : Fragment(R.layout.fragment_current_weather) {
         }
     }
 }
-
