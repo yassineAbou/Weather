@@ -2,7 +2,6 @@ package com.yassineabou.weather.data.remote
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import com.yassineabou.weather.BuildConfig
 import com.yassineabou.weather.data.model.WeatherResult
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -10,7 +9,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 private const val WEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5/"
-private const val WEATHER_API_KEY = BuildConfig.WEATHER_API_KEY
+private const val WEATHER_API_KEY = "5c15883bc2aa8181a1d35d6e2099ae8c"
 
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
