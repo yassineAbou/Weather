@@ -22,6 +22,16 @@ Users can view and add weather information for multiple cities of their choice w
 It provides a 48-hour forecast, an 8-day forecast, and current weather conditions.  
 The program can also detect the user’s location to provide accurate local weather information.
 
+## <a href="https://imgur.com/jDOxJdo"><img src="https://i.imgur.com/jDOxJdo.png" title="source: imgur.com" /></a>Play Store
+
+I am trying to add a weather app to the Google Play Store. I have been rejected several times because my app requires background location permissions. I have been trying to fix this for a week, but I am not sure how. If you are able to help, please email me at  Abouyassine056@gmail.com
+
+<!-- Image -->
+<div align="center">
+  <a href="https://imgur.com/jeI1uPy">
+    <img src="https://i.imgur.com/jeI1uPy.jpg" alt="Weather App Screenshot">
+  </a>
+</div>
 
 ## Screenshots
 
