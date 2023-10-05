@@ -15,7 +15,7 @@
     <string name="action_settings">Settings</string>
     <string name="granted_permissions">Locations permission granted</string>
     <string name="rationale_permissions">
-    For accurate forecasts, weather app needs background location. This auto-updates your current city\'s weather. Allow access in settings
+    For accurate forecasts, weather app needs location permission. This auto-updates your current city\'s weather. Allow access in settings
     </string>
     <string name="request_again">Request again</string>
     <string name="auto_location_error">"Auto-location is not working properly, please make sure you connect to the internet "</string>

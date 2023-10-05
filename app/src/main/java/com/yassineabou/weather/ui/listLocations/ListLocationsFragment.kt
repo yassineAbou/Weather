@@ -3,7 +3,6 @@ package com.yassineabou.weather.ui.listLocations
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
@@ -32,8 +31,6 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.rommansabbir.networkx.NetworkXProvider.isInternetConnectedFlow
-
-
 import com.yassineabou.weather.R
 import com.yassineabou.weather.data.model.Location
 import com.yassineabou.weather.databinding.FragmentListLocationsBinding
@@ -61,18 +58,10 @@ class ListLocationsFragment : Fragment(R.layout.fragment_list_locations) {
     private val mainViewModel: MainViewModel by activityViewModels()
 
     private val permissionRequest by lazy {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            permissionsBuilder(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ).build()
-        } else {
-            permissionsBuilder(
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ).build()
-        }
+        permissionsBuilder(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ).build()
     }
 
     private val fusedLocationProviderClient by lazy {

@@ -22,16 +22,9 @@ Users can view and add weather information for multiple cities of their choice w
 It provides a 48-hour forecast, an 8-day forecast, and current weather conditions.  
 The program can also detect the user’s location to provide accurate local weather information.
 
-## <a href="https://imgur.com/jDOxJdo"><img src="https://i.imgur.com/jDOxJdo.png" title="source: imgur.com" /></a>Play Store
-
-I am trying to add a weather app to the Google Play Store. I have been rejected several times because my app requires background location permissions. I have been trying to fix this for a week, but I am not sure how. If you are able to help, please email me at  Abouyassine056@gmail.com
-
-<!-- Image -->
-<div align="center">
-  <a href="https://imgur.com/jeI1uPy">
-    <img src="https://i.imgur.com/jeI1uPy.jpg" alt="Weather App Screenshot">
-  </a>
-</div>
+<p align="center">  
+  <a href="https://play.google.com/store/apps/details?id=com.yassineabou.weather"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" height="80px"/></a>  
+</p>   
 
 ## Screenshots
 
@@ -42,14 +35,6 @@ I am trying to add a weather app to the Google Play Store. I have been rejected 
  <img src="https://i.imgur.com/Odc7Gic.png" style="flex:1; margin:5px;" height="450">  
 
 </div>
-
-## Features
-<p>To use the app's auto location feature, permission is needed. Here's how based on Android versions:</p>
-
-<ul>
-  <li>Android 7-10: The app asks for location directly.</li>
-  <li>Android 11+: A dialog appears. Click "Ok" to go to settings and grant location access.</li>
-</ul>
 
 
 ## API Key :key:
@@ -145,4 +130,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
 See the License for the specific language governing permissions and  
 limitations under the License.
-
