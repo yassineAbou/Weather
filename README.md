@@ -102,7 +102,6 @@ com.yassineabou.weather        # Root package
 - [DataStore](https://developer.android.com/topic/libraries/architecture/datastore) (Key-value storage)
 - [Ssp](https://github.com/intuit/ssp) (Scalable size unit for texts)
 - [Kpermissions](https://github.com/fondesa/kpermissions) (Coroutines based runtime permissions)
-- [NetworkX](https://github.com/rommansabbir/NetworkX) (Internet connection status)
 
 
 ## Contribution
