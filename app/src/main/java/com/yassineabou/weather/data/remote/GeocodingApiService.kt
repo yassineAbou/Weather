@@ -9,6 +9,8 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 private const val GEO_CODING_BASE_URL = "https://geocode.maps.co/"
+private const val CEO_CODING_API_KEY = "663ecfda36dbd060556360aikfbe9d6"
+
 
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
@@ -24,7 +26,8 @@ interface GeocodingApiService {
     @GET("reverse")
     suspend fun getGeocodingApi(
         @Query("lat") lat: Double,
-        @Query("lon") lon: Double
+        @Query("lon") lon: Double,
+        @Query("api_key") apiKey: String = CEO_CODING_API_KEY
     ): Geocoding
 }
 

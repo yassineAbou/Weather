@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yassineabou.weather.data.model.Location
 import com.yassineabou.weather.data.model.WeatherResult
+import com.yassineabou.weather.data.repository.ConnectivityRepository
 import com.yassineabou.weather.data.repository.GeocodingRepository
 import com.yassineabou.weather.data.repository.LocationRepository
 import com.yassineabou.weather.data.repository.TogglePreferencesRepository
@@ -33,7 +34,8 @@ class MainViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
     private val locationRepository: LocationRepository,
     private val togglePreferencesRepository: TogglePreferencesRepository,
-    private val geoCodingRepository: GeocodingRepository
+    private val geoCodingRepository: GeocodingRepository,
+    private val connectivityRepository: ConnectivityRepository
 ) : ViewModel() {
 
     private val _event = MutableStateFlow(Event())
@@ -57,6 +59,8 @@ class MainViewModel @Inject constructor(
     val toolbarTitle = _toolbarTitle.asStateFlow()
 
     val toggled = togglePreferencesRepository.toggled
+
+    val isConnected = connectivityRepository.isConnected
 
     fun toggle(isChecked: Boolean) = viewModelScope.launch(Dispatchers.IO) {
         togglePreferencesRepository.toggle(isChecked)
@@ -93,9 +97,10 @@ class MainViewModel @Inject constructor(
                     lon = longitude
                 )
                 val locality =
-                    "${geoCoding.address.city.substringBefore(" ")}, ${geoCoding.address.country_code.uppercase()}" // ktlint-disable max-line-length
+                    "${geoCoding.address.city}, ${geoCoding.address.countryCode.uppercase()}" // ktlint-disable max-line-length
                 setLocationGeocoder(Location(locality, latitude, longitude, isAutoLocation = true))
                 addLocation(Location(locality, latitude, longitude, isAutoLocation = true))
+
                 _geocodingApiStatus.value = ApiStatus.DONE
             } catch (e: Exception) {
                 _geocodingApiStatus.value = ApiStatus.ERROR

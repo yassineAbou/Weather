@@ -8,7 +8,7 @@ plugins {
 
 @Suppress("UnstableApiUsage")
 android {
-    compileSdk = 33
+    compileSdk = 34
 
     buildFeatures {
         dataBinding = true
@@ -17,9 +17,9 @@ android {
     defaultConfig {
         applicationId = "com.yassineabou.weather"
         minSdk = 24
-        targetSdk = 33
-        versionCode = 3
-        versionName = "1.2"
+        targetSdk = 34
+        versionCode = 4
+        versionName = "1.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resourceConfigurations += listOf("en")
     }
@@ -92,8 +92,6 @@ dependencies {
     // kPermissions
     implementation("com.github.fondesa:kpermissions-coroutines:3.4.0")
 
-    // networkX
-    implementation("com.github.rommansabbir:NetworkX:4.2.0")
 }
 android {
     buildTypes {

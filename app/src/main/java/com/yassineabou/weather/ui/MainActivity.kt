@@ -42,6 +42,18 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.isConnected.collectLatest { isConnected ->
+                    if (isConnected) {
+                        if (mainViewModel.weatherApiStatus.value == ApiStatus.ERROR) {
+                            mainViewModel.updateWeatherApiStatus(null)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun setupViewpager2() {
