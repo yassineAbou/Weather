@@ -26,6 +26,12 @@ The program can also detect the user’s location to provide accurate local weat
   <a href="https://play.google.com/store/apps/details?id=com.yassineabou.weather"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" height="80px"/></a>  
 </p>   
 
+## ⚠️ Alert 
+
+OpenWeather has changed its API policy, causing the current API to stop functioning. We are in the process of switching to another API provider. Please stay tuned for updates.
+
+
+
 ## Screenshots
 
 <div style="display:flex; flex-wrap:wrap;">  
