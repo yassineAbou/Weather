@@ -6,8 +6,9 @@
     <data>
 
         <variable
-            name="dailyForecast"
-            type="com.yassineabou.weather.data.model.Daily" />
+            name="dailyForecastDataHolder"
+            type="com.yassineabou.weather.ui.dailyForecast.DailyForecastDataHolder" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -24,7 +25,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:srcCompat="@tools:sample/backgrounds/scenic"
             app:layout_constraintBottom_toTopOf="@+id/border_daily_forecast"
-            image_daily_forecast="@{dailyForecast}"
+            image_daily_forecast="@{dailyForecastDataHolder.weatherCode}"
             android:layout_marginTop="@dimen/_10sdp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/daily_weather" />
@@ -39,7 +40,7 @@
             app:layout_constraintEnd_toStartOf="@+id/daily_min_temperature"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginEnd="@dimen/_15sdp"
-            daily_max_temperature="@{dailyForecast}" />
+            daily_max_temperature="@{dailyForecastDataHolder.temperature2mMax}" />
 
         <TextView
             android:id="@+id/daily_min_temperature"
@@ -52,7 +53,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="@dimen/_10sdp"
             app:layout_constraintTop_toTopOf="parent"
-            daily_min_temperature="@{dailyForecast}" />
+            daily_min_temperature="@{dailyForecastDataHolder.temperature2mMin}" />
 
         <TextView
             android:id="@+id/day"
@@ -64,7 +65,7 @@
             android:textColor="@color/white"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            day="@{dailyForecast}" />
+            day="@{dailyForecastDataHolder.time}" />
 
         <TextView
             android:id="@+id/daily_weather_description"
@@ -76,7 +77,8 @@
             android:textSize="@dimen/_14ssp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/day"
-            daily_weather_description="@{dailyForecast}" />
+            daily_weather_description="@{dailyForecastDataHolder.weatherCode}"
+            />
 
         <View
             android:id="@+id/border_daily_forecast"

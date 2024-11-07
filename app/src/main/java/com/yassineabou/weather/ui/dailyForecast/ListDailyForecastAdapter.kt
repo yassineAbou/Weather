@@ -9,7 +9,7 @@ import com.yassineabou.weather.data.model.Daily
 import com.yassineabou.weather.databinding.DailyForecastItemBinding
 
 class ListDailyForecastAdapter :
-    ListAdapter<Daily, ListDailyForecastAdapter.ViewHolder>(DailyForecastDiffCallback()) {
+    ListAdapter<DailyForecastDataHolder, ListDailyForecastAdapter.ViewHolder>(DailyForecastDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val dailyForecast = getItem(position)!!
@@ -25,9 +25,9 @@ class ListDailyForecastAdapter :
     ) :
         RecyclerView.ViewHolder(dailyForecastItemBinding.root) {
 
-        fun bind(daily: Daily) {
+        fun bind(dailyForecastDataHolder: DailyForecastDataHolder) {
             dailyForecastItemBinding.apply {
-                dailyForecast = daily
+                this.dailyForecastDataHolder = dailyForecastDataHolder
                 executePendingBindings()
             }
         }
@@ -42,12 +42,12 @@ class ListDailyForecastAdapter :
     }
 }
 
-class DailyForecastDiffCallback : DiffUtil.ItemCallback<Daily>() {
-    override fun areItemsTheSame(oldItem: Daily, newItem: Daily): Boolean {
-        return oldItem.dt == newItem.dt
+class DailyForecastDiffCallback : DiffUtil.ItemCallback<DailyForecastDataHolder>() {
+    override fun areItemsTheSame(oldItem: DailyForecastDataHolder, newItem: DailyForecastDataHolder): Boolean {
+        return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: Daily, newItem: Daily): Boolean {
+    override fun areContentsTheSame(oldItem: DailyForecastDataHolder, newItem: DailyForecastDataHolder): Boolean {
         return oldItem == newItem
     }
 }

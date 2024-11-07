@@ -12,7 +12,7 @@ import com.yassineabou.weather.R
 import com.yassineabou.weather.databinding.FragmentCurrentWeatherBinding
 import com.yassineabou.weather.ui.ApiStatus
 import com.yassineabou.weather.ui.MainViewModel
-import com.yassineabou.weather.util.setImage
+import com.yassineabou.weather.util.getWeatherDetails
 import com.yassineabou.weather.util.viewBinding
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
@@ -76,10 +76,11 @@ class CurrentWeatherFragment : Fragment(R.layout.fragment_current_weather) {
                 currentWeatherViewModel.currentWeather.buffer().collect {
                     it?.let { currentWeather ->
                         fragmentCurrentWeatherBinding.apply {
-                            imageCurrentWeather.setImage(currentWeather.weather[0].icon)
-                            temperature.text = "${currentWeather.temp.toInt()}°"
-                            humidity.text = "${currentWeather.humidity}%"
-                            wind.text = "${currentWeather.wind_speed}m/s"
+                            val weatherIcon = getWeatherDetails(currentWeather.weatherCode.toInt()).first
+                            imageCurrentWeather.setImageResource(weatherIcon)
+                            temperature.text = "${currentWeather.temperature2m.toInt()}°"
+                            humidity.text = "${currentWeather.relativeHumidity2m}%"
+                            wind.text = "${currentWeather.windSpeed10m}km/h"
                         }
                     }
                 }

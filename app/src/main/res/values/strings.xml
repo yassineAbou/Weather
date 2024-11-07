@@ -19,7 +19,7 @@
     </string>
     <string name="request_again">Request again</string>
     <string name="auto_location_error">"Auto-location is not working properly, please make sure you connect to the internet "</string>
-    <string name="toolbar_daily_forecast">Next 8 days, unit:°C</string>
+    <string name="toolbar_daily_forecast">Next 7 days, unit:°C</string>
     <string name="toolbar_hourly_forecast">Next 48 hours, unit:°C</string>
     <string name="toolbar_current_weather">Today, unit:°C</string>
     <string name="toolbar_list_locations">Auto location</string>

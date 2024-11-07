@@ -5,11 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.yassineabou.weather.data.model.Hourly
 import com.yassineabou.weather.databinding.HourlyForecastItemBinding
 
 class ListHourlyForecastAdapter :
-    ListAdapter<Hourly, ListHourlyForecastAdapter.ViewHolder>(HourlyForecastDiffCallback()) {
+    ListAdapter<HourlyForecastDataHolder, ListHourlyForecastAdapter.ViewHolder>(HourlyForecastDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val hourlyForecast = getItem(position)!!
@@ -25,9 +24,9 @@ class ListHourlyForecastAdapter :
     ) :
         RecyclerView.ViewHolder(hourlyForecastItemBinding.root) {
 
-        fun bind(hourly: Hourly) {
+        fun bind(hourlyForecastDataHolder: HourlyForecastDataHolder) {
             hourlyForecastItemBinding.apply {
-                this.hourlyForecast = hourly
+                this.hourlyForecastDataHolder = hourlyForecastDataHolder
                 executePendingBindings()
             }
         }
@@ -42,12 +41,12 @@ class ListHourlyForecastAdapter :
     }
 }
 
-class HourlyForecastDiffCallback : DiffUtil.ItemCallback<Hourly>() {
-    override fun areItemsTheSame(oldItem: Hourly, newItem: Hourly): Boolean {
-        return oldItem.dt == newItem.dt
+class HourlyForecastDiffCallback : DiffUtil.ItemCallback<HourlyForecastDataHolder>() {
+    override fun areItemsTheSame(oldItem: HourlyForecastDataHolder, newItem: HourlyForecastDataHolder): Boolean {
+        return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: Hourly, newItem: Hourly): Boolean {
+    override fun areContentsTheSame(oldItem: HourlyForecastDataHolder, newItem: HourlyForecastDataHolder): Boolean {
         return oldItem == newItem
     }
 }

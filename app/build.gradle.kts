@@ -4,6 +4,7 @@ plugins {
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
 }
 
 @Suppress("UnstableApiUsage")
@@ -18,8 +19,8 @@ android {
         applicationId = "com.yassineabou.weather"
         minSdk = 24
         targetSdk = 34
-        versionCode = 4
-        versionName = "1.3"
+        versionCode = 6
+        versionName = "1.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resourceConfigurations += listOf("en")
     }
@@ -43,6 +44,12 @@ android {
         jvmTarget = "17"
     }
     namespace = "com.yassineabou.weather"
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 dependencies {
@@ -80,17 +87,17 @@ dependencies {
 
     // room
     implementation("androidx.room:room-ktx:2.5.2")
-    kapt("androidx.room:room-compiler:2.5.2")
+    ksp("androidx.room:room-compiler:2.5.2")
 
     // hilt
-    implementation("com.google.dagger:hilt-android:2.47")
-    kapt("com.google.dagger:hilt-compiler:2.47")
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-compiler:2.51.1")
 
     // datastore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // kPermissions
-    implementation("com.github.fondesa:kpermissions-coroutines:3.4.0")
+    implementation("com.github.fondesa:kpermissions-coroutines:3.5.0")
 
 }
 android {
