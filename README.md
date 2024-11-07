@@ -26,11 +26,6 @@ The program can also detect the user’s location to provide accurate local weat
   <a href="https://play.google.com/store/apps/details?id=com.yassineabou.weather"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" height="80px"/></a>  
 </p>   
 
-## ⚠️ Alert 
-
-OpenWeather has changed its API policy, causing the current API to stop functioning. We are in the process of switching to another API provider. Please stay tuned for updates.
-
-
 
 ## Screenshots
 
@@ -43,15 +38,8 @@ OpenWeather has changed its API policy, causing the current API to stop function
 </div>
 
 
-## API Key :key:
-The project has an API key included. To use a different API key, follow these steps:
-
-1. Visit the [OpenWeatherMap website](https://openweathermap.org/api/one-call-api).
-2. If you don't already have an account, register for one.
-3. **Make sure you use One Call API 2.5. It is free to use for up to 1,000 API calls per day.**
-4. Once you have an account, request an API key.
-5. Open `WeatherApiService.kt`.
-6. In the `WEATHER_API_KEY` property, paste your API key.
+# API
+This project uses the [Open-Meteo](https://open-meteo.com/) API to fetch weather data.
 
 
 
