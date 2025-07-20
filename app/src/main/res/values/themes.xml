@@ -16,5 +16,8 @@
         <item name="android:fontFamily">@font/roboto_light</item>
         <item name="fontFamily">@font/roboto_light</item>
         <item name="android:windowBackground">@drawable/gradient</item>
+
+        <item name="android:windowDrawsSystemBarBackgrounds">false</item>
+        <item name="android:fitsSystemWindows">true</item>
     </style>
 </resources>
